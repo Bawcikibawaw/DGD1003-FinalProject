@@ -1,24 +1,45 @@
 using UnityEngine;
+using UnityEngine.InputSystem; 
 
 public class GodModeTrait : MonoBehaviour
 {
+    public float duration = 5f;    
+    private PlayerMovement movement;
+    private SpriteRenderer sr;
+    private Color originalColor;
+
     void Start()
     {
-        // 1. Aynı obje üzerindeki PlayerMovement script'ine ulaş
-        PlayerMovement movement = GetComponent<PlayerMovement>();
+        movement = GetComponent<PlayerMovement>();
+        sr = GetComponent<SpriteRenderer>();
+        if (sr != null) originalColor = sr.color;
+    }
 
-        if (movement != null)
+    void Update()
+    {
+        if (Keyboard.current != null && Keyboard.current.gKey.wasPressedThisFrame)
         {
-            // 2. Onu ölümsüz yap
-            movement.isInvincible = true;
-            Debug.Log("Özel Karakter Aktif: Ölümsüzlük Açıldı!");
+            // --- BAR KONTROLÜ ---
+            // Sadece bar doluysa çalışır ve barı boşaltır
+            if (movement != null && movement.TryUseCheat())
+            {
+                ActivateGodMode();
+            }
         }
+    }
 
-        // 3. Karakterin rengini Altın Sarısı yap (Farkı görelim diye)
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            sr.color = Color.yellow;
-        }
+    void ActivateGodMode()
+    {
+        if (movement != null) movement.isInvincible = true;
+        if (sr != null) sr.color = Color.yellow;
+        Debug.Log("KALKAN AÇILDI!");
+        Invoke("DeactivateGodMode", duration);
+    }
+
+    void DeactivateGodMode()
+    {
+        if (movement != null) movement.isInvincible = false;
+        if (sr != null) sr.color = originalColor;
+        Debug.Log("KALKAN BİTTİ!");
     }
 }

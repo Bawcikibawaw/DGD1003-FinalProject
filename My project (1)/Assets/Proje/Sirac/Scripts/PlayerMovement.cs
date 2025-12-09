@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem; 
 using UnityEngine.SceneManagement; 
-using UnityEngine.UI; // <-- YENİ: UI (Can Barı) kullanmak için şart!
+using UnityEngine.UI; 
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -9,12 +9,17 @@ public class PlayerMovement : MonoBehaviour
     public GameObject bulletPrefab; 
     public Transform firePoint;     
 
-    // --- YENİ CAN DEĞİŞKENLERİ ---
-    public int maxHealth = 100; // Maksimum can
-    public int currentHealth;   // O anki can
-    public Slider healthBar;    // Ekrandaki Slider'ı buraya sürükleyeceğiz
+    [Header("Can Ayarları")]
+    public int maxHealth = 100; 
+    public int currentHealth;   
+    public Slider healthBar;    
 
-    public bool isInvincible = false; // God Mode için
+    [Header("Cheat (Ulti) Ayarları")]
+    public Slider cheatBar;      // Mavi barı buraya sürükle
+    public int maxCheat = 100;   // Bar kaça gelince dolsun?
+    public int currentCheat = 0; // Şu anki doluluk
+
+    public bool isInvincible = false; 
 
     private Rigidbody2D rb;
     private Vector2 moveInput;   
@@ -22,9 +27,8 @@ public class PlayerMovement : MonoBehaviour
     private Camera cam; 
     private TimeRewind timeRewind; 
 
-    // Hasar alma sıklığını kontrol etmek için (Cooldown)
     private float lastDamageTime;
-    private float damageCooldown = 1f; // 1 saniyede bir hasar alabilsin
+    private float damageCooldown = 1f; 
 
     void Start()
     {
@@ -32,14 +36,18 @@ public class PlayerMovement : MonoBehaviour
         cam = Camera.main; 
         timeRewind = GetComponent<TimeRewind>(); 
 
-        // Oyuna başlarken canı fulle
         currentHealth = maxHealth;
-        
-        // Eğer healthBar kutusunu doldurduysak ayarlarını yap
         if (healthBar != null)
         {
             healthBar.maxValue = maxHealth;
             healthBar.value = currentHealth;
+        }
+
+        // --- YENİ: CHEAT BAR BAŞLANGIÇ ---
+        if (cheatBar != null)
+        {
+            cheatBar.maxValue = maxCheat;
+            cheatBar.value = 0; // Boş başla
         }
     }
 
@@ -76,9 +84,7 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = Vector2.zero; 
             return; 
         }
-        
         rb.linearVelocity = moveInput * moveSpeed;
-
         Vector2 lookDir = mousePos - rb.position;
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f; 
         rb.MoveRotation(angle);
@@ -87,64 +93,66 @@ public class PlayerMovement : MonoBehaviour
     void Shoot()
     {
         Transform spawnPoint = (firePoint != null) ? firePoint : transform;
-        
         Vector2 lookDir = mousePos - (Vector2)spawnPoint.position;
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         Quaternion bulletRotation = Quaternion.Euler(0, 0, angle);
-
         Instantiate(bulletPrefab, spawnPoint.position, bulletRotation); 
     }
 
-    // --- CAN AZALTMA FONKSİYONU ---
+    // --- YENİ: ENERJİ EKLEME FONKSİYONU ---
+    // Bunu mermi (Bullet) çağıracak
+    public void AddCheatCharge(int amount)
+    {
+        currentCheat += amount;
+        if (currentCheat > maxCheat) currentCheat = maxCheat;
+
+        if (cheatBar != null) cheatBar.value = currentCheat;
+    }
+
+    // --- YENİ: ENERJİ HARCAMA KONTROLÜ ---
+    // Bunu skiller (Ghost, GodMode vb.) çağıracak
+    public bool TryUseCheat()
+    {
+        // Bar dolu mu?
+        if (currentCheat >= maxCheat)
+        {
+            currentCheat = 0; // Barı boşalt
+            if (cheatBar != null) cheatBar.value = currentCheat;
+            return true; // "Evet, kullanabilirsin" de
+        }
+        else
+        {
+            Debug.Log("Bar henüz dolmadı!");
+            return false; // "Hayır, kullanamazsın" de
+        }
+    }
+
     public void TakeDamage(int damage)
     {
-        // God Mode açıksa veya geri sarıyorsak hasar alma
         if (isInvincible || (timeRewind != null && timeRewind.IsRewinding())) return;
-
-        // Son hasardan bu yana 1 saniye geçmediyse hasar alma (Makinalı tüfek gibi can gitmesin)
         if (Time.time - lastDamageTime < damageCooldown) return;
 
-        // Canı azalt
         currentHealth -= damage;
-        lastDamageTime = Time.time; // Son hasar zamanını güncelle
-        Debug.Log("Hasar alındı! Kalan Can: " + currentHealth);
+        lastDamageTime = Time.time; 
 
-        // Can barını güncelle
-        if (healthBar != null)
-        {
-            healthBar.value = currentHealth;
-        }
+        if (healthBar != null) healthBar.value = currentHealth;
 
-        // Öldük mü?
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
+        if (currentHealth <= 0) Die();
     }
 
     void Die()
     {
-        Debug.Log("OYUNCU ÖLDÜ! Yeniden başlatılıyor...");
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    // Çarpışma olduğunda
     void OnCollisionEnter2D(Collision2D collision)
     {
+        if (timeRewind != null && timeRewind.IsRewinding()) return;
+        if (isInvincible) return; 
+
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            // Direkt ölmek yerine 20 hasar al
             TakeDamage(20); 
-        }
-    }
-    
-    // Temas devam ettiği sürece (Enemy içinde kalınca)
-    void OnCollisionStay2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            // Süre dolduysa tekrar hasar al
-            TakeDamage(20);
         }
     }
 }

@@ -5,7 +5,13 @@ public class EnemyAI : MonoBehaviour
     public float moveSpeed = 3f; 
 
     private Rigidbody2D rb;
-    private Transform playerTarget; // Oyuncunun pozisyonunu saklayacak
+    
+    // --- DÜZELTME BURADA ---
+    // Başındaki 'private' (veya boşluk) yerine 'public' yazdık.
+    // Artık Ghost script'i buna erişip hafızayı silebilir.
+    public Transform playerTarget; 
+    // -----------------------
+
     private TimeRewind timeRewind; 
 
     void Start()
@@ -13,9 +19,12 @@ public class EnemyAI : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         timeRewind = GetComponent<TimeRewind>(); 
 
-        // Sahnedeki "Player" tag'ine sahip objeyi bul ve hedefe ata
-        // Bu objenin sürekli var olduğunu varsayıyoruz
-        playerTarget = GameObject.FindGameObjectWithTag("Player").transform;
+        // Sahnedeki "Player" etiketli objeyi bul ve ona kilitlen
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (playerObject != null)
+        {
+            playerTarget = playerObject.transform;
+        }
     }
 
     void FixedUpdate()
@@ -27,21 +36,20 @@ public class EnemyAI : MonoBehaviour
             return; 
         }
 
-        // Oyuncu hedefi var mı diye kontrol et (her ihtimale karşı)
+        // Hedefe doğru git (Sadece hedef varsa!)
         if (playerTarget != null)
         {
-            // --- BÜTÜN MANTIK BU KADAR ---
-            // 'isChasing' kontrolü yok. Sadece hedefe doğru git.
             Vector2 direction = (playerTarget.position - transform.position).normalized;
             rb.linearVelocity = direction * moveSpeed;
 
-            // (İsteğe bağlı) Düşmanın oyuncuya bakmasını sağla
+            // Düşmanı oyuncuya döndür
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
             rb.MoveRotation(angle);
         }
+        else
+        {
+            // Hedef yoksa (Ghost mode açıldıysa) dur
+            rb.linearVelocity = Vector2.zero;
+        }
     }
-
-    // --- GÖRÜŞ ALANI (TRIGGER) FONKSİYONLARI TAMAMEN SİLİNDİ ---
-    // OnTriggerEnter2D yok
-    // OnTriggerExit2D yok
 }
