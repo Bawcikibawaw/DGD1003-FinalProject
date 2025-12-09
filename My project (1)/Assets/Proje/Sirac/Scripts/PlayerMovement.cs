@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem; 
 using UnityEngine.SceneManagement; 
+using UnityEngine.UI; // <-- YENİ: UI (Can Barı) kullanmak için şart!
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -8,9 +9,12 @@ public class PlayerMovement : MonoBehaviour
     public GameObject bulletPrefab; 
     public Transform firePoint;     
 
-    // --- YENİ DEĞİŞKEN ---
-    // Public yaptık ki başka scriptler veya Unity Editörü bunu değiştirebilsin
-    public bool isInvincible = false; 
+    // --- YENİ CAN DEĞİŞKENLERİ ---
+    public int maxHealth = 100; // Maksimum can
+    public int currentHealth;   // O anki can
+    public Slider healthBar;    // Ekrandaki Slider'ı buraya sürükleyeceğiz
+
+    public bool isInvincible = false; // God Mode için
 
     private Rigidbody2D rb;
     private Vector2 moveInput;   
@@ -18,11 +22,25 @@ public class PlayerMovement : MonoBehaviour
     private Camera cam; 
     private TimeRewind timeRewind; 
 
+    // Hasar alma sıklığını kontrol etmek için (Cooldown)
+    private float lastDamageTime;
+    private float damageCooldown = 1f; // 1 saniyede bir hasar alabilsin
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         cam = Camera.main; 
         timeRewind = GetComponent<TimeRewind>(); 
+
+        // Oyuna başlarken canı fulle
+        currentHealth = maxHealth;
+        
+        // Eğer healthBar kutusunu doldurduysak ayarlarını yap
+        if (healthBar != null)
+        {
+            healthBar.maxValue = maxHealth;
+            healthBar.value = currentHealth;
+        }
     }
 
     void Update()
@@ -35,8 +53,6 @@ public class PlayerMovement : MonoBehaviour
             if (Keyboard.current.aKey.isPressed) move.x -= 1;
             if (Keyboard.current.dKey.isPressed) move.x += 1;
             moveInput = move.normalized; 
-            
-            // "G" TUŞU KODUNU BURADAN SİLDİK
         }
         
         if (Mouse.current != null) 
@@ -71,6 +87,7 @@ public class PlayerMovement : MonoBehaviour
     void Shoot()
     {
         Transform spawnPoint = (firePoint != null) ? firePoint : transform;
+        
         Vector2 lookDir = mousePos - (Vector2)spawnPoint.position;
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         Quaternion bulletRotation = Quaternion.Euler(0, 0, angle);
@@ -78,21 +95,56 @@ public class PlayerMovement : MonoBehaviour
         Instantiate(bulletPrefab, spawnPoint.position, bulletRotation); 
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    // --- CAN AZALTMA FONKSİYONU ---
+    public void TakeDamage(int damage)
     {
-        if (timeRewind != null && timeRewind.IsRewinding()) return;
+        // God Mode açıksa veya geri sarıyorsak hasar alma
+        if (isInvincible || (timeRewind != null && timeRewind.IsRewinding())) return;
 
-        // --- KONTROL ---
-        // Eğer bu karakter "isInvincible" (Ölümsüz) olarak işaretlendiyse ölme!
-        if (isInvincible)
+        // Son hasardan bu yana 1 saniye geçmediyse hasar alma (Makinalı tüfek gibi can gitmesin)
+        if (Time.time - lastDamageTime < damageCooldown) return;
+
+        // Canı azalt
+        currentHealth -= damage;
+        lastDamageTime = Time.time; // Son hasar zamanını güncelle
+        Debug.Log("Hasar alındı! Kalan Can: " + currentHealth);
+
+        // Can barını güncelle
+        if (healthBar != null)
         {
-            return; 
+            healthBar.value = currentHealth;
         }
 
+        // Öldük mü?
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        Debug.Log("OYUNCU ÖLDÜ! Yeniden başlatılıyor...");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    // Çarpışma olduğunda
+    void OnCollisionEnter2D(Collision2D collision)
+    {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            Debug.Log("OYUNCU YAKALANDI! Yeniden başlatılıyor...");
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            // Direkt ölmek yerine 20 hasar al
+            TakeDamage(20); 
+        }
+    }
+    
+    // Temas devam ettiği sürece (Enemy içinde kalınca)
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            // Süre dolduysa tekrar hasar al
+            TakeDamage(20);
         }
     }
 }
