@@ -12,10 +12,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Can Ayarları")]
     public int maxHealth = 100; 
     public int currentHealth;   
-    public Slider healthBar;    
 
     [Header("Cheat (Ulti) Ayarları")]
-    public Slider cheatBar;      // Mavi barı buraya sürükle
     public int maxCheat = 100;   // Bar kaça gelince dolsun?
     public int currentCheat = 0; // Şu anki doluluk
 
@@ -37,18 +35,6 @@ public class PlayerMovement : MonoBehaviour
         timeRewind = GetComponent<TimeRewind>(); 
 
         currentHealth = maxHealth;
-        if (healthBar != null)
-        {
-            healthBar.maxValue = maxHealth;
-            healthBar.value = currentHealth;
-        }
-
-        // --- YENİ: CHEAT BAR BAŞLANGIÇ ---
-        if (cheatBar != null)
-        {
-            cheatBar.maxValue = maxCheat;
-            cheatBar.value = 0; // Boş başla
-        }
     }
 
     void Update()
@@ -105,8 +91,6 @@ public class PlayerMovement : MonoBehaviour
     {
         currentCheat += amount;
         if (currentCheat > maxCheat) currentCheat = maxCheat;
-
-        if (cheatBar != null) cheatBar.value = currentCheat;
     }
 
     // --- YENİ: ENERJİ HARCAMA KONTROLÜ ---
@@ -117,7 +101,6 @@ public class PlayerMovement : MonoBehaviour
         if (currentCheat >= maxCheat)
         {
             currentCheat = 0; // Barı boşalt
-            if (cheatBar != null) cheatBar.value = currentCheat;
             return true; // "Evet, kullanabilirsin" de
         }
         else
@@ -134,8 +117,7 @@ public class PlayerMovement : MonoBehaviour
 
         currentHealth -= damage;
         lastDamageTime = Time.time; 
-
-        if (healthBar != null) healthBar.value = currentHealth;
+        
 
         if (currentHealth <= 0) Die();
     }

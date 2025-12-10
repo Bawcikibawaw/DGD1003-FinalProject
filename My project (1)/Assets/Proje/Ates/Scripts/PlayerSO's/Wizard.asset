@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterName: Wizard
   description: WIZAAAAAARD
-  characterPrefab: {fileID: 6129395762716950910, guid: a4b1c5931ba780f4093ccadc36c849f5, type: 3}
+  characterPrefab: {fileID: 8109615299782714848, guid: 5fc1a6c75de1eac47b4fd41537b52375, type: 3}
   characterID: 0
   maxHealth: 100
   attackPower: 15
