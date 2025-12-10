@@ -11,7 +11,7 @@ public class Trap : MonoBehaviour
     {
         trapHinge = GetComponent<HingeJoint2D>();
         
-        StartCoroutine("FindAndCachePlayerRigidbody");
+        //StartCoroutine("FindAndCachePlayerRigidbody");
     }
 
     void OnCollisionEnter2D(Collision2D collision)
