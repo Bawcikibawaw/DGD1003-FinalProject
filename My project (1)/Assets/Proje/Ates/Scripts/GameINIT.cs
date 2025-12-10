@@ -3,37 +3,47 @@ using UnityEngine.SceneManagement;
 
 public class GameInitializer : MonoBehaviour
 {
-
-    public PlayerSelectionSO selectionManager; 
+    // Inspector'dan atılacak Yönetici SO
+    public PlayerSelectionSO gameSelectionManager;
+    
+    // Karakterin nerede belireceğini belirleyen Transform (isteğe bağlı)
+    public Transform playerSpawnPoint; 
 
     void Start()
     {
-        PlayerSO selectedData = selectionManager.selectedPlayer; 
-
-        if (selectedData != null)
+        // Yönetici SO'da bir karakter seçili mi kontrol et
+        if (gameSelectionManager.IsCharacterSelected())
         {
-            Debug.Log($"Game started with: {selectedData.playerName}");
+            PlayerSO selectedChar = gameSelectionManager.selectedCharacter;
+
+            Debug.Log($"Oyun Başladı! Seçilen Karakter: {selectedChar.characterName}");
             
-            if (selectedData.playerPrefab != null)
+            GameObject playerPrefab = selectedChar.characterPrefab;
+            
+            if (playerPrefab != null)
             {
-                Instantiate(selectedData.playerPrefab, Vector3.zero, Quaternion.identity); 
+                // Karakteri dünyada Instantiate et (Oluştur)
+                Vector3 spawnPosition = playerSpawnPoint != null ? playerSpawnPoint.position : Vector3.zero;
+                
+                GameObject playerInstance = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
+                playerInstance.name = selectedChar.characterName + " (Oyuncu)";
+
+                // Örneğin, karakterin canını buradan ayarlayabilirsiniz:
+                // playerInstance.GetComponent<PlayerStats>().Initialize(selectedChar.maxHealth, selectedChar.attackPower);
+
+                // Seçim bilgisini temizleyerek Main Menu'ye dönüldüğünde tekrar seçilmesini sağlayabilirsiniz.
+                // gameSelectionManager.ClearSelection();
             }
-
-            // 2. Oyuncu Verilerini Kullanma (Örnek)
-            // Oyuncu kontrolcüsü (PlayerController) scriptine
-            // başlangıç can ve hız değerlerini aktarabilirsiniz.
-
-            // Örneğin:
-            // PlayerController player = FindObjectOfType<PlayerController>(); 
-            // if (player != null)
-            // {
-            //     player.SetStats(selectedData.initialHealth, selectedData.movementSpeed);
-            // }
+            else
+            {
+                Debug.LogError($"'{selectedChar.characterName}' için karakter prefab'ı atanmamış!");
+            }
         }
         else
         {
-            Debug.LogError("No player was selected! Returning to main menu.");
-            SceneManager.LoadScene("MainMenu"); 
+            // Güvenlik: Eğer direkt oyun sahnesine geçildiyse
+            Debug.LogError("Karakter seçimi yapılmadan oyun başlatıldı! Ana Menüye yönlendiriliyor...");
+            // SceneManager.LoadScene("MainMenuSceneAdi"); // Scene adını düzenleyin!
         }
     }
 }
