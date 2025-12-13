@@ -166,4 +166,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 15
-  lifeTime: 2
+  damage: 35
+  lifetime: 3
+  bloodPrefab: {fileID: 3172709652781507847, guid: cf74abda0a1e647b8b06d942cc2af722, type: 3}

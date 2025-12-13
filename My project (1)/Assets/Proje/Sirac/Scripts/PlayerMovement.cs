@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("Hareket & Savaş")]
     public float moveSpeed = 5f; 
     public GameObject bulletPrefab; 
     public Transform firePoint;     
@@ -12,11 +13,23 @@ public class PlayerMovement : MonoBehaviour
     [Header("Can Ayarları")]
     public int maxHealth = 100; 
     public int currentHealth;   
+    public Slider healthBar;    
 
     [Header("Cheat (Ulti) Ayarları")]
-    public int maxCheat = 100;   // Bar kaça gelince dolsun?
-    public int currentCheat = 0; // Şu anki doluluk
+    public Slider cheatBar;      
+    public int maxCheat = 100;   
+    public int currentCheat = 0; 
 
+    // --- YENİ EKLENEN KISIM: KAMERA TİTREME AYARLARI ---
+    [Header("Kamera Titreme Ayarları (Camera Shake)")]
+    public float shootShakeDuration = 0.1f; // Ateş edince ne kadar sürsün?
+    public float shootShakePower = 0.1f;    // Ateş edince ne kadar şiddetli olsun?
+    
+    public float damageShakeDuration = 0.2f; // Hasar alınca ne kadar sürsün?
+    public float damageShakePower = 0.3f;    // Hasar alınca ne kadar şiddetli olsun?
+    // ---------------------------------------------------
+
+    [Header("Durumlar")]
     public bool isInvincible = false; 
 
     private Rigidbody2D rb;
@@ -35,6 +48,18 @@ public class PlayerMovement : MonoBehaviour
         timeRewind = GetComponent<TimeRewind>(); 
 
         currentHealth = maxHealth;
+        
+        if (healthBar != null)
+        {
+            healthBar.maxValue = maxHealth;
+            healthBar.value = currentHealth;
+        }
+
+        if (cheatBar != null)
+        {
+            cheatBar.maxValue = maxCheat;
+            cheatBar.value = 0; 
+        }
     }
 
     void Update()
@@ -70,7 +95,9 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = Vector2.zero; 
             return; 
         }
+        
         rb.linearVelocity = moveInput * moveSpeed;
+
         Vector2 lookDir = mousePos - rb.position;
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f; 
         rb.MoveRotation(angle);
@@ -82,32 +109,32 @@ public class PlayerMovement : MonoBehaviour
         Vector2 lookDir = mousePos - (Vector2)spawnPoint.position;
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         Quaternion bulletRotation = Quaternion.Euler(0, 0, angle);
+
         Instantiate(bulletPrefab, spawnPoint.position, bulletRotation); 
+
+        // TİTREME BURADA ÇAĞRILIYOR (Senin ayarladığın değerlerle)
+        if (CameraShake.instance != null)
+        {
+            CameraShake.instance.Shake(shootShakeDuration, shootShakePower); 
+        }
     }
 
-    // --- YENİ: ENERJİ EKLEME FONKSİYONU ---
-    // Bunu mermi (Bullet) çağıracak
     public void AddCheatCharge(int amount)
     {
         currentCheat += amount;
         if (currentCheat > maxCheat) currentCheat = maxCheat;
+        if (cheatBar != null) cheatBar.value = currentCheat;
     }
 
-    // --- YENİ: ENERJİ HARCAMA KONTROLÜ ---
-    // Bunu skiller (Ghost, GodMode vb.) çağıracak
     public bool TryUseCheat()
     {
-        // Bar dolu mu?
         if (currentCheat >= maxCheat)
         {
-            currentCheat = 0; // Barı boşalt
-            return true; // "Evet, kullanabilirsin" de
+            currentCheat = 0; 
+            if (cheatBar != null) cheatBar.value = currentCheat;
+            return true; 
         }
-        else
-        {
-            Debug.Log("Bar henüz dolmadı!");
-            return false; // "Hayır, kullanamazsın" de
-        }
+        return false; 
     }
 
     public void TakeDamage(int damage)
@@ -117,24 +144,47 @@ public class PlayerMovement : MonoBehaviour
 
         currentHealth -= damage;
         lastDamageTime = Time.time; 
-        
+        Debug.Log("Hasar alındı! Kalan Can: " + currentHealth);
 
-        if (currentHealth <= 0) Die();
+        if (healthBar != null) healthBar.value = currentHealth;
+
+        // TİTREME BURADA ÇAĞRILIYOR (Senin ayarladığın değerlerle)
+        if (CameraShake.instance != null)
+        {
+            CameraShake.instance.Shake(damageShakeDuration, damageShakePower); 
+        }
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
     }
 
     void Die()
     {
+        Debug.Log("OYUNCU ÖLDÜ!");
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (timeRewind != null && timeRewind.IsRewinding()) return;
-        if (isInvincible) return; 
+        if (isInvincible) return;
 
         if (collision.gameObject.CompareTag("Enemy"))
         {
             TakeDamage(20); 
+        }
+    }
+    
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if (timeRewind != null && timeRewind.IsRewinding()) return;
+        if (isInvincible) return;
+
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            TakeDamage(20);
         }
     }
 }
