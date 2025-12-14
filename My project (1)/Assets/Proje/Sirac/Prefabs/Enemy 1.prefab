@@ -273,6 +273,9 @@ MonoBehaviour:
   minHealth: 50
   maxHealth: 150
   healthBar: {fileID: 6410765198800640237}
+  healthPickupPrefab: {fileID: 0}
+  dropChance: 25
+  damagePopupPrefab: {fileID: 6932543031152221650, guid: d76a1c08e318d4183a2a57b1381fd432, type: 3}
 --- !u!1 &2138002027321136617
 GameObject:
   m_ObjectHideFlags: 0
@@ -574,3 +577,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c59ebdb7916d41559bcb0b3d34aeef7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  offset: {x: 0, y: 1.2, z: 0}
