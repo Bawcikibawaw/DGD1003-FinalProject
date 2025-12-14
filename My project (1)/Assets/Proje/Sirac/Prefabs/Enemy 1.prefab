@@ -208,7 +208,7 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDamping: 0
+  m_LinearDamping: 10
   m_AngularDamping: 0.05
   m_GravityScale: 0
   m_Material: {fileID: 0}
@@ -273,8 +273,6 @@ MonoBehaviour:
   minHealth: 50
   maxHealth: 150
   healthBar: {fileID: 6410765198800640237}
-  healthPickupPrefab: {fileID: 0}
-  dropChance: 25
   damagePopupPrefab: {fileID: 6932543031152221650, guid: d76a1c08e318d4183a2a57b1381fd432, type: 3}
 --- !u!1 &2138002027321136617
 GameObject:

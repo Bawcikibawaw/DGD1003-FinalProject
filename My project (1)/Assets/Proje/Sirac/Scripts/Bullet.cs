@@ -2,59 +2,61 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    [Header("Mermi Ayarları")]
+    [Header("Temel Ayarlar")]
     public float speed = 20f;
     public int damage = 15;      
     public float lifetime = 3f;  
 
-    [Header("Efektler")]
-    public GameObject bloodPrefab; 
+    [Header("Kritik Vuruş Sistemi")]
+    [Range(0, 100)] public int critChance = 20; // %20 Şans
+    public int critMultiplier = 2; // Hasarı 2'ye katla
+
+    [Header("Fizik & His")]
+    public float knockbackForce = 5f; // Geri tepme gücü
 
     private Rigidbody2D rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        rb.linearVelocity = transform.up * speed;
+        // Mermiyi ileri fırlat
+        if (rb != null)
+        {
+            rb.linearVelocity = transform.up * speed;
+        }
+        // Ömrü dolunca yok et
         Destroy(gameObject, lifetime);
     }
 
     void OnTriggerEnter2D(Collider2D hitInfo)
     {
         // 1. DÜŞMANA ÇARPARSA
-        if (hitInfo.CompareTag("Enemy"))
+        Enemy enemy = hitInfo.GetComponent<Enemy>();
+        
+        if (enemy != null)
         {
-            // Kan Efekti
-            if (bloodPrefab != null)
-            {
-                Quaternion randomRotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
-                Instantiate(bloodPrefab, hitInfo.transform.position, randomRotation);
-            }
+            // Kritik Hesapla
+            bool isCritical = Random.Range(0, 100) < critChance;
+            int finalDamage = isCritical ? damage * critMultiplier : damage;
 
-            // Geri İtme (Knockback)
+            // Hasarı ver
+            enemy.TakeDamage(finalDamage, isCritical);
+
+            // İtme Gücü Uygula (Knockback)
             Rigidbody2D enemyRb = hitInfo.GetComponent<Rigidbody2D>();
             if (enemyRb != null)
             {
-                enemyRb.AddForce(transform.up * 400f, ForceMode2D.Impulse);
-            }
-
-            // Hasar Ver
-            Enemy enemyScript = hitInfo.GetComponent<Enemy>();
-            if (enemyScript != null)
-            {
-                enemyScript.TakeDamage(damage);
+                enemyRb.AddForce(transform.up * knockbackForce, ForceMode2D.Impulse);
             }
             
             Destroy(gameObject);
         }
-
-        // 2. PATLAYAN FIÇIYA ÇARPARSA (İsim değiştiği için burayı güncelledik!)
+        // 2. PATLAYAN FIÇIYA ÇARPARSA
         else if (hitInfo.GetComponent<PatlayanFici>() != null)
         {
             hitInfo.GetComponent<PatlayanFici>().TakeDamage(damage);
             Destroy(gameObject);
         }
-
         // 3. DUVARA ÇARPARSA
         else if (hitInfo.CompareTag("Wall"))
         {

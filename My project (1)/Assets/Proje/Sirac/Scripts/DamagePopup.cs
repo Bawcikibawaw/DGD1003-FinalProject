@@ -1,39 +1,46 @@
 using UnityEngine;
-using TMPro; // TextMeshPro kullanmak için bu şart!
+using TMPro;
 
 public class DamagePopup : MonoBehaviour
 {
     private TextMeshPro textMesh;
-    public float moveSpeed = 2f;    // Yukarı çıkma hızı
-    public float disappearTime = 1f; // Kaç saniyede kaybolsun?
+    public float moveSpeed = 2f;
+    public float disappearTime = 1f;
     private Color textColor;
 
-    // Bu fonksiyonu dışarıdan (Düşmandan) çağıracağız
-    public void Setup(int damageAmount)
+    // YENİ SETUP FONKSİYONU (isCritical eklendi)
+    public void Setup(int damageAmount, bool isCritical)
     {
         textMesh = GetComponent<TextMeshPro>();
-        // Sayıyı yazıya çevir
         textMesh.text = damageAmount.ToString();
+
+        if (isCritical)
+        {
+            // --- KRİTİKSE ---
+            textMesh.fontSize += 3; // Yazıyı büyüt
+            textMesh.color = Color.red; // Kıpkırmızı yap
+            textMesh.fontStyle = FontStyles.Bold; // Kalın yap
+        }
+        else
+        {
+            // --- NORMAL ---
+            textMesh.color = Color.yellow; // Normal sarı (veya turuncu)
+        }
         
-        // Başlangıç rengini al
         textColor = textMesh.color;
     }
 
     void Update()
     {
-        // 1. YUKARI HAREKET
         transform.position += new Vector3(0, moveSpeed * Time.deltaTime, 0);
 
-        // 2. YAVAŞÇA KAYBOLMA (Fade Out)
-        disappearTime -= Time.deltaTime; // Süreyi azalt
+        disappearTime -= Time.deltaTime;
         if (disappearTime < 0)
         {
-            // Süre dolunca şeffaflığı (Alpha) azalt
             float fadeSpeed = 3f;
             textColor.a -= fadeSpeed * Time.deltaTime;
             textMesh.color = textColor;
 
-            // Tamamen görünmez olunca objeyi yok et
             if (textColor.a < 0)
             {
                 Destroy(gameObject);

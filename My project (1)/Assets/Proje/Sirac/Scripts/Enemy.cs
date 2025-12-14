@@ -15,15 +15,17 @@ public class Enemy : MonoBehaviour
     private Color originalColor;
 
     [Header("Efektler")]
-    public GameObject damagePopupPrefab; // Sadece bunu bağlayacaksın (Sarı Yazı)
+    public GameObject damagePopupPrefab; // Sarı/Kırmızı yazı prefabı
 
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
         if (sr != null) originalColor = sr.color;
 
+        // Rastgele Canla Başla
         currentHealth = Random.Range(minHealth, maxHealth);
 
+        // Can Barını Ayarla
         if (healthBar != null)
         {
             healthBar.minValue = 0;
@@ -32,37 +34,41 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damage)
+    // ARTIK 2 PARAMETRE ALIYOR: (Hasar, Kritik mi?)
+    public void TakeDamage(int damage, bool isCritical)
     {
         currentHealth -= damage;
 
-        // 1. Can Barı Güncelle
+        // 1. Can Barını Güncelle
         if (healthBar != null)
         {
             healthBar.value = currentHealth;
         }
 
-        // 2. Yanıp Sönme
+        // 2. Beyaz Yanıp Sönme
         if (sr != null)
         {
             StartCoroutine(FlashEffect());
         }
 
-        // 3. UÇAN HASAR YAZISI (İstediğin özellik)
+        // 3. HASAR YAZISINI OLUŞTUR
         if (damagePopupPrefab != null)
         {
             // Yazıyı kafasının üstünde oluştur
             Vector3 spawnPosition = transform.position + new Vector3(0, 0.5f, 0);
             GameObject popup = Instantiate(damagePopupPrefab, spawnPosition, Quaternion.identity);
             
-            // Sayıyı yazdır
+            // Yazı scriptini bul
             DamagePopup popupScript = popup.GetComponent<DamagePopup>();
             if (popupScript != null)
             {
-                popupScript.Setup(damage);
+                // Yazıya hem hasarı hem de kritik bilgisini gönder
+                // (DamagePopup.cs dosyanın güncel olması lazım!)
+                popupScript.Setup(damage, isCritical);
             }
         }
 
+        // 4. Ölüm Kontrolü
         if (currentHealth <= 0)
         {
             Die();
@@ -78,7 +84,6 @@ public class Enemy : MonoBehaviour
 
     void Die()
     {
-        // Hiçbir şey düşürmeden direkt yok ol
         Destroy(gameObject);
     }
 }

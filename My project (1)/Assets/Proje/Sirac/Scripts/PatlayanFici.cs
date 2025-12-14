@@ -3,16 +3,22 @@ using UnityEngine;
 public class PatlayanFici : MonoBehaviour
 {
     [Header("Fıçı Ayarları")]
-    public int health = 30;         
-    public float patlamaAlani = 3f; 
-    public int patlamaHasari = 50; 
-    public float itmeGucu = 10f;    
-
+    public int health = 30;
+    public float patlamaYaricapi = 3f;
+    public int patlamaHasari = 50;
+    
     [Header("Efektler")]
     public GameObject patlamaEfekti; 
+    public AudioClip patlamaSesi;    
+
+    // --- KRİTİK KORUMA DEĞİŞKENİ ---
+    private bool patladi = false; 
 
     public void TakeDamage(int damage)
     {
+        // EĞER ZATEN PATLADIYSA HİÇBİR ŞEY YAPMA! (Çökme Engelleyici)
+        if (patladi) return;
+
         health -= damage;
         if (health <= 0)
         {
@@ -22,41 +28,49 @@ public class PatlayanFici : MonoBehaviour
 
     void Patla()
     {
-        // Etraftaki herkesi (Düşman, Kutu vs) bul
-        Collider2D[] vurulanlar = Physics2D.OverlapCircleAll(transform.position, patlamaAlani);
+        // Kilidi kapat, bir daha kimse bu fıçıya hasar veremez
+        patladi = true;
 
-        foreach (Collider2D nesne in vurulanlar)
+        // 1. Etraftakileri Bul
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, patlamaYaricapi);
+        
+        foreach (Collider2D hitObj in hitColliders)
         {
-            // Düşmana hasar ver
-            Enemy enemy = nesne.GetComponent<Enemy>();
+            // A) Düşmana hasar ver
+            Enemy enemy = hitObj.GetComponent<Enemy>();
             if (enemy != null)
             {
-                enemy.TakeDamage(patlamaHasari);
+                enemy.TakeDamage(patlamaHasari, false); // Fıçı kritiği olmaz (false)
             }
-
-            // Fiziksel objeleri fırlat
-            Rigidbody2D rb = nesne.GetComponent<Rigidbody2D>();
-            if (rb != null && rb != GetComponent<Rigidbody2D>())
+            
+            // B) Zincirleme Patlama (Diğer fıçılar)
+            PatlayanFici fici = hitObj.GetComponent<PatlayanFici>();
+            if (fici != null && fici != this)
             {
-                Vector2 direction = nesne.transform.position - transform.position;
-                rb.AddForce(direction.normalized * itmeGucu, ForceMode2D.Impulse);
+                // Diğer fıçıya hasar ver (O da kendi kontrolünü yapacak)
+                fici.TakeDamage(patlamaHasari);
             }
         }
 
-        // Efekt varsa oluştur
+        // 2. Görsel Efekt
         if (patlamaEfekti != null)
         {
             Instantiate(patlamaEfekti, transform.position, Quaternion.identity);
         }
 
-        // Fıçıyı yok et
+        // 3. Ses
+        if (patlamaSesi != null)
+        {
+            AudioSource.PlayClipAtPoint(patlamaSesi, transform.position);
+        }
+
+        // 4. Yok Et
         Destroy(gameObject);
     }
-    
-    // Editörde alanı görmek için kırmızı çizgi
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, patlamaAlani);
+        Gizmos.DrawWireSphere(transform.position, patlamaYaricapi);
     }
 }
