@@ -35,28 +35,38 @@ public class Bullet : MonoBehaviour
         
         if (enemy != null)
         {
-            // Kritik Hesapla
+            // A. KRİTİK HESAPLAMA
             bool isCritical = Random.Range(0, 100) < critChance;
             int finalDamage = isCritical ? damage * critMultiplier : damage;
 
-            // Hasarı ver
+            // B. HASARI VER (Kritik bilgisiyle beraber)
             enemy.TakeDamage(finalDamage, isCritical);
 
-            // İtme Gücü Uygula (Knockback)
+            // C. VURUŞ İŞARETİ (HIT MARKER) GÖSTER [YENİ EKLENEN]
+            HitMarker marker = FindObjectOfType<HitMarker>();
+            if (marker != null)
+            {
+                marker.Show();
+            }
+
+            // D. GERİ TEPME (KNOCKBACK) UYGULA
             Rigidbody2D enemyRb = hitInfo.GetComponent<Rigidbody2D>();
             if (enemyRb != null)
             {
                 enemyRb.AddForce(transform.up * knockbackForce, ForceMode2D.Impulse);
             }
             
+            // Mermiyi yok et
             Destroy(gameObject);
         }
+        
         // 2. PATLAYAN FIÇIYA ÇARPARSA
         else if (hitInfo.GetComponent<PatlayanFici>() != null)
         {
             hitInfo.GetComponent<PatlayanFici>().TakeDamage(damage);
             Destroy(gameObject);
         }
+        
         // 3. DUVARA ÇARPARSA
         else if (hitInfo.CompareTag("Wall"))
         {
