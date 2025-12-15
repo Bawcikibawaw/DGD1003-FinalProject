@@ -11,8 +11,9 @@ public class Enemy : MonoBehaviour
     public GameObject lootPrefab; // Can kutusu prefabını buraya sürükle
     [Range(0, 100)] public int dropChance = 20; // %20 düşme şansı
 
-    [Header("Level XP Sistemi")]
+    [Header("Level XP & Güç Sistemi")]
     public float xpAmount = 20f; // Bu düşman ölünce kaç XP versin?
+    public float cheatValueOnDeath = 10f; // (YENİ) Ölünce Cheat Bar'a kaç değer eklesin?
 
     [Header("UI & Görsel")]
     public Slider healthBar; 
@@ -36,16 +37,16 @@ public class Enemy : MonoBehaviour
             transform.localScale = new Vector3(0.8f, 0.8f, 1f); 
             if (movement != null) movement.moveSpeed = 5f; 
             currentHealth = 60; 
-            if (sr != null) sr.color = new Color(0.5f, 1f, 0.5f); // Açık Yeşil
-            xpAmount = 15f; // Kolay öldüğü için az XP
+            if (sr != null) sr.color = new Color(0.5f, 1f, 0.5f); 
+            xpAmount = 15f; 
         }
         else if (zar > 85) // TANK (%15)
         {
             transform.localScale = new Vector3(1.5f, 1.5f, 1f);
             if (movement != null) movement.moveSpeed = 1.5f; 
             currentHealth = 400; 
-            if (sr != null) sr.color = new Color(1f, 0.5f, 0.5f); // Açık Kırmızı
-            xpAmount = 50f; // Zor öldüğü için çok XP
+            if (sr != null) sr.color = new Color(1f, 0.5f, 0.5f); 
+            xpAmount = 50f; 
         }
         else // NORMAL (%55)
         {
@@ -56,10 +57,8 @@ public class Enemy : MonoBehaviour
             xpAmount = 25f;
         }
 
-        // Seçilen rengi hafızaya al (Flash bitince buna dönecek)
         if (sr != null) originalColor = sr.color;
 
-        // Can Barını Ayarla
         if (healthBar != null)
         {
             healthBar.minValue = 0;
@@ -68,6 +67,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    // --- OVERLOAD 1: ANA HASAR ALMA FONKSİYONU ---
     public void TakeDamage(int damage, bool isCritical)
     {
         currentHealth -= damage;
@@ -93,24 +93,45 @@ public class Enemy : MonoBehaviour
         if (currentHealth <= 0) Die();
     }
 
+    // --- OVERLOAD 2: Tek parametre (int damage) gönderilirse (Mermi, Patlayan Fıçı) ---
+    public void TakeDamage(int damage)
+    {
+        // Varsayılan olarak kritik değil (false) kabul et
+        TakeDamage(damage, false);
+    }
+    
+    // --- OVERLOAD 3: Üç parametre (int damage, float knockback) gönderilirse ---
+    public void TakeDamage(int damage, float knockback)
+    {
+        // Knockback'i şimdilik yok sayıp, ana fonksiyona yolla
+        TakeDamage(damage, false);
+    }
+
     IEnumerator FlashEffect()
     {
-        // Vurulunca KIPKIRMIZI olsun
         sr.color = new Color(1f, 0.2f, 0.2f); 
         yield return new WaitForSeconds(0.1f); 
-        // Sonra kendi orijinal rengine dönsün
         sr.color = originalColor; 
     }
 
     void Die()
     {
-        // 1. XP VERME İŞLEMİ (LevelSystem'e bağlanır)
+        // 1. XP VERME İŞLEMİ 
         if (LevelSystem.instance != null)
         {
             LevelSystem.instance.AddExperience(xpAmount);
         }
+        
+        // 2. CHEAT BAR DOLDURMA İŞLEMİ (YENİ EKLENDİ!)
+        // Eğer Cheat Bar sistemi (PlayerStats veya LevelSystem içinde) varsa
+        // Bu kod LevelSystem içinde AddCheatValue fonksiyonunun olduğunu varsayar.
+        if (LevelSystem.instance != null)
+        {
+            // LevelSystem.cs scriptinin içinde AddCheatValue(float amount) fonksiyonu OLMALI!
+            LevelSystem.instance.AddCheatValue(cheatValueOnDeath);
+        }
 
-        // 2. LOOT DÜŞÜRME İŞLEMİ
+        // 3. LOOT DÜŞÜRME İŞLEMİ
         if (lootPrefab != null)
         {
             if (Random.Range(0, 100) <= dropChance)
