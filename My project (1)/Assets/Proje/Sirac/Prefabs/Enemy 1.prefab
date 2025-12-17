@@ -270,10 +270,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b78811e0c890442de8c360d6f3af127a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minHealth: 50
-  maxHealth: 150
+  lootPrefab: {fileID: 559567654613804415, guid: 59c25d063d13e4c0fb00f7c8f9539098, type: 3}
+  dropChance: 20
+  xpAmount: 20
+  cheatValueOnDeath: 10
   healthBar: {fileID: 6410765198800640237}
   damagePopupPrefab: {fileID: 6932543031152221650, guid: d76a1c08e318d4183a2a57b1381fd432, type: 3}
+  hitSound: {fileID: 8300000, guid: f913b3a9d886e4ef8a12e604a4a83d46, type: 3}
 --- !u!1 &2138002027321136617
 GameObject:
   m_ObjectHideFlags: 0

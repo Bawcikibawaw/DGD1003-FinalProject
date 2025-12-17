@@ -168,4 +168,8 @@ MonoBehaviour:
   speed: 15
   damage: 35
   lifetime: 3
-  bloodPrefab: {fileID: 3172709652781507847, guid: cf74abda0a1e647b8b06d942cc2af722, type: 3}
+  hitEffectPrefab: {fileID: 3245266924613943552, guid: 1b8faa4abdc244ab480cd7232f88f82f, type: 3}
+  shellPrefab: {fileID: 7824183963776754925, guid: 2a7ffa4dc9ec247b09410c7915444e5f, type: 3}
+  critChance: 5
+  critMultiplier: 2
+  knockbackForce: 10
