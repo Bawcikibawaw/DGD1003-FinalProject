@@ -14,19 +14,7 @@ public class GodModeTrait : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         if (sr != null) originalColor = sr.color;
     }
-
-    void Update()
-    {
-        if (Keyboard.current != null && Keyboard.current.gKey.wasPressedThisFrame)
-        {
-            // --- BAR KONTROLÜ ---
-            // Sadece bar doluysa çalışır ve barı boşaltır
-            if (movement != null && movement.TryUseCheat())
-            {
-                ActivateGodMode();
-            }
-        }
-    }
+    
 
     void ActivateGodMode()
     {

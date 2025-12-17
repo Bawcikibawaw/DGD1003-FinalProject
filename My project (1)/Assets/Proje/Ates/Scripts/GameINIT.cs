@@ -27,6 +27,19 @@ public class GameInitializer : MonoBehaviour
                 
                 GameObject playerInstance = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
                 playerInstance.name = selectedChar.characterName + " (Oyuncu)";
+                
+                PlayerCheat abilityManager = playerInstance.GetComponent<PlayerCheat>();
+                if (abilityManager != null)
+                {
+                    abilityManager.InitializeAbility(selectedChar.characterID);
+                }
+
+// 2. Eğer KnightWeapon kullanıyorsan onu da tetikle (ID'ye göre prefabları içeride tutabilirsin)
+                KnightWeapon weapon = playerInstance.GetComponent<KnightWeapon>();
+                if (weapon != null)
+                {
+                    // weapon.Initialize(...) 
+                }
 
                 // Örneğin, karakterin canını buradan ayarlayabilirsiniz:
                 // playerInstance.GetComponent<PlayerStats>().Initialize(selectedChar.maxHealth, selectedChar.attackPower);

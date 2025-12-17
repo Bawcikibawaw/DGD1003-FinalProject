@@ -106,17 +106,7 @@ public class PlayerMovement : MonoBehaviour
         currentCheat += amount;
         if (currentCheat > maxCheat) currentCheat = maxCheat;
     }
-
-    public bool TryUseCheat()
-    {
-        if (currentCheat >= maxCheat)
-        {
-            currentCheat = 0; 
-            return true; 
-        }
-        return false; 
-    }
-
+    
     public void TakeDamage(int damage)
     {
         if (isInvincible || (timeRewind != null && timeRewind.IsRewinding())) return;

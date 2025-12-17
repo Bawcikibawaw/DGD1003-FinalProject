@@ -197,6 +197,7 @@ GameObject:
   - component: {fileID: 5235361918647330515}
   - component: {fileID: 4458423832333845541}
   - component: {fileID: 7338768500172413703}
+  - component: {fileID: 2078277993000366469}
   m_Layer: 0
   m_Name: KnightPrefab
   m_TagString: Player
@@ -370,3 +371,16 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &2078277993000366469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9207451801786911076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37e0b3100d633c944831eaf3826f7d3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shieldDuration: 3

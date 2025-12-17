@@ -11,19 +11,7 @@ public class KillAllTrait : MonoBehaviour
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr != null) sr.color = Color.red;
     }
-
-    void Update()
-    {
-        if (Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame)
-        {
-            // --- BAR KONTROLÜ ---
-            if (movement != null && movement.TryUseCheat())
-            {
-                NukeEnemies();
-            }
-        }
-    }
-
+    
     void NukeEnemies()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
