@@ -169,6 +169,6 @@ MonoBehaviour:
   damage: 35
   lifetime: 3
   hitEffectPrefab: {fileID: 3245266924613943552, guid: 1b8faa4abdc244ab480cd7232f88f82f, type: 3}
-  critChance: 20
+  critChance: 5
   critMultiplier: 2
-  knockbackForce: 5
+  knockbackForce: 10
