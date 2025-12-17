@@ -5,27 +5,40 @@ public class Bullet : MonoBehaviour
     [Header("Temel Ayarlar")]
     public float speed = 20f;
     public int damage = 15;      
-    public float lifetime = 3f;  
+    public float lifetime = 3f;
+
+    [Header("Görsel Efektler")]
+    public GameObject hitEffectPrefab; // Vuruş efekti buraya
+    // --------------------------------------------------
 
     [Header("Kritik Vuruş Sistemi")]
-    [Range(0, 100)] public int critChance = 20; // %20 Şans
-    public int critMultiplier = 2; // Hasarı 2'ye katla
+    [Range(0, 100)] public int critChance = 20; 
+    public int critMultiplier = 2; 
 
     [Header("Fizik & His")]
-    public float knockbackForce = 5f; // Geri tepme gücü
+    public float knockbackForce = 5f; 
 
     private Rigidbody2D rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        // Mermiyi ileri fırlat
         if (rb != null)
         {
+            // Unity 6 kullanıyorsan linearVelocity, eski sürümse velocity kullan.
+            // Kodunda linearVelocity olduğu için aynen bırakıyorum.
             rb.linearVelocity = transform.up * speed;
         }
-        // Ömrü dolunca yok et
         Destroy(gameObject, lifetime);
+    }
+
+    // --- Efekti oluşturan fonksiyon ---
+    void SpawnHitEffect()
+    {
+        if (hitEffectPrefab != null)
+        {
+            Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+        }
     }
 
     void OnTriggerEnter2D(Collider2D hitInfo)
@@ -35,41 +48,40 @@ public class Bullet : MonoBehaviour
         
         if (enemy != null)
         {
-            // A. KRİTİK HESAPLAMA
+            // Kritik Hesapla
             bool isCritical = Random.Range(0, 100) < critChance;
             int finalDamage = isCritical ? damage * critMultiplier : damage;
-
-            // B. HASARI VER (Kritik bilgisiyle beraber)
+            
+            // Hasar Ver
             enemy.TakeDamage(finalDamage, isCritical);
 
-            // C. VURUŞ İŞARETİ (HIT MARKER) GÖSTER [YENİ EKLENEN]
+            // Hit Marker Göster
             HitMarker marker = FindObjectOfType<HitMarker>();
-            if (marker != null)
-            {
-                marker.Show();
-            }
+            if (marker != null) marker.Show();
 
-            // D. GERİ TEPME (KNOCKBACK) UYGULA
+            // Geri Tepme (Knockback)
             Rigidbody2D enemyRb = hitInfo.GetComponent<Rigidbody2D>();
             if (enemyRb != null)
             {
                 enemyRb.AddForce(transform.up * knockbackForce, ForceMode2D.Impulse);
             }
-            
-            // Mermiyi yok et
-            Destroy(gameObject);
+
+            SpawnHitEffect(); // Efekt çıkar
+            Destroy(gameObject); // Mermiyi yok et
         }
         
         // 2. PATLAYAN FIÇIYA ÇARPARSA
         else if (hitInfo.GetComponent<PatlayanFici>() != null)
         {
             hitInfo.GetComponent<PatlayanFici>().TakeDamage(damage);
+            SpawnHitEffect(); // Efekt çıkar
             Destroy(gameObject);
         }
         
-        // 3. DUVARA ÇARPARSA
+        // 3. DUVARA ÇARPARSA (Tag'i "Wall" olmalı)
         else if (hitInfo.CompareTag("Wall"))
         {
+            SpawnHitEffect(); // Efekt çıkar
             Destroy(gameObject);
         }
     }
