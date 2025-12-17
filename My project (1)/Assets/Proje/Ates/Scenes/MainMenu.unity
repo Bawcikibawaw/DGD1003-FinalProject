@@ -398,7 +398,7 @@ GameObject:
   - component: {fileID: 342889631}
   - component: {fileID: 342889632}
   m_Layer: 5
-  m_Name: Char
+  m_Name: Wizard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1426,7 +1426,7 @@ GameObject:
   - component: {fileID: 1150789369}
   - component: {fileID: 1150789368}
   m_Layer: 5
-  m_Name: WizardButton
+  m_Name: Knight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2289,7 +2289,7 @@ GameObject:
   - component: {fileID: 1839837132}
   - component: {fileID: 1839837133}
   m_Layer: 5
-  m_Name: Char (1)
+  m_Name: Knight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

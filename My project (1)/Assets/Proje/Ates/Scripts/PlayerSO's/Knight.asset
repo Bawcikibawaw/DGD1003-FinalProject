@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 054335484e4ac004d887183e58e922c1, type: 3}
-  m_Name: Wizard 1
+  m_Name: Knight
   m_EditorClassIdentifier: 
   characterName: 2
-  description: WIZAAAAAARD2
-  characterPrefab: {fileID: 8109615299782714848, guid: 5fc1a6c75de1eac47b4fd41537b52375, type: 3}
+  description: Knight
+  characterPrefab: {fileID: 9207451801786911076, guid: ae7a88d6ea9a3a64681a3c2c39296eac, type: 3}
   characterID: 1
   maxHealth: 100
   attackPower: 15
