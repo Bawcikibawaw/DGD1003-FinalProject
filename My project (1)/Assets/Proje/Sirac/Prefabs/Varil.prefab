@@ -176,7 +176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 30
-  patlamaAlani: 4
+  patlamaYaricapi: 3
   patlamaHasari: 75
-  itmeGucu: 20
   patlamaEfekti: {fileID: 6030687603965746573, guid: 557f1c290f12a4546bb946d3291e008b, type: 3}
+  patlamaSesi: {fileID: 8300000, guid: b1a6f26d163ff413f890dc8913a760b3, type: 3}
