@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI; 
 using System.Collections;
+using System.ComponentModel.Design.Serialization;
 
 public class Enemy : MonoBehaviour
 {
@@ -85,5 +86,6 @@ public class Enemy : MonoBehaviour
     void Die()
     {
         Destroy(gameObject);
+        PlayerMovement.Instance.AddCheatCharge(5);
     }
 }

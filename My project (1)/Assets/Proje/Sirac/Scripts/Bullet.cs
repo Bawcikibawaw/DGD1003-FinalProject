@@ -35,6 +35,8 @@ public class Bullet : MonoBehaviour
         
         if (enemy != null)
         {
+            Destroy(gameObject);
+            
             // A. KRİTİK HESAPLAMA
             bool isCritical = Random.Range(0, 100) < critChance;
             int finalDamage = isCritical ? damage * critMultiplier : damage;
@@ -57,7 +59,7 @@ public class Bullet : MonoBehaviour
             }
             
             // Mermiyi yok et
-            Destroy(gameObject);
+            //Destroy(gameObject);
         }
         
         // 2. PATLAYAN FIÇIYA ÇARPARSA

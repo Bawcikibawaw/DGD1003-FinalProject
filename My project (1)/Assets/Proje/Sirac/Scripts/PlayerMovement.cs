@@ -7,16 +7,15 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Hareket & Savaş")]
     public float moveSpeed = 5f; 
-    public GameObject bulletPrefab; 
-    public Transform firePoint;     
 
     [Header("Can Ayarları")]
     public int maxHealth = 100; 
     public int currentHealth;   
-    public Slider healthBar;    
+    //public Slider healthBar;    
 
     [Header("Cheat (Ulti) Ayarları")]
-    public Slider cheatBar;      
+    
+    //public Slider cheatBar;      
     public int maxCheat = 100;   
     public int currentCheat = 0; 
 
@@ -27,6 +26,9 @@ public class PlayerMovement : MonoBehaviour
     
     public float damageShakeDuration = 0.2f; // Hasar alınca ne kadar sürsün?
     public float damageShakePower = 0.3f;    // Hasar alınca ne kadar şiddetli olsun?
+
+    public static PlayerMovement Instance;
+
     // ---------------------------------------------------
 
     [Header("Durumlar")]
@@ -45,21 +47,12 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         cam = Camera.main; 
-        timeRewind = GetComponent<TimeRewind>(); 
+        timeRewind = GetComponent<TimeRewind>();
 
         currentHealth = maxHealth;
         
-        if (healthBar != null)
-        {
-            healthBar.maxValue = maxHealth;
-            healthBar.value = currentHealth;
-        }
-
-        if (cheatBar != null)
-        {
-            cheatBar.maxValue = maxCheat;
-            cheatBar.value = 0; 
-        }
+        if (Instance != null && Instance != this) { Destroy(this); return; }
+        Instance = this;
     }
 
     void Update()
@@ -97,21 +90,10 @@ public class PlayerMovement : MonoBehaviour
         }
         
         rb.linearVelocity = moveInput * moveSpeed;
-
-        Vector2 lookDir = mousePos - rb.position;
-        float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f; 
-        rb.MoveRotation(angle);
     }
 
     void Shoot()
     {
-        Transform spawnPoint = (firePoint != null) ? firePoint : transform;
-        Vector2 lookDir = mousePos - (Vector2)spawnPoint.position;
-        float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
-        Quaternion bulletRotation = Quaternion.Euler(0, 0, angle);
-
-        Instantiate(bulletPrefab, spawnPoint.position, bulletRotation); 
-
         // TİTREME BURADA ÇAĞRILIYOR (Senin ayarladığın değerlerle)
         if (CameraShake.instance != null)
         {
@@ -123,7 +105,6 @@ public class PlayerMovement : MonoBehaviour
     {
         currentCheat += amount;
         if (currentCheat > maxCheat) currentCheat = maxCheat;
-        if (cheatBar != null) cheatBar.value = currentCheat;
     }
 
     public bool TryUseCheat()
@@ -131,7 +112,6 @@ public class PlayerMovement : MonoBehaviour
         if (currentCheat >= maxCheat)
         {
             currentCheat = 0; 
-            if (cheatBar != null) cheatBar.value = currentCheat;
             return true; 
         }
         return false; 
@@ -145,8 +125,7 @@ public class PlayerMovement : MonoBehaviour
         currentHealth -= damage;
         lastDamageTime = Time.time; 
         Debug.Log("Hasar alındı! Kalan Can: " + currentHealth);
-
-        if (healthBar != null) healthBar.value = currentHealth;
+        
 
         // TİTREME BURADA ÇAĞRILIYOR (Senin ayarladığın değerlerle)
         if (CameraShake.instance != null)

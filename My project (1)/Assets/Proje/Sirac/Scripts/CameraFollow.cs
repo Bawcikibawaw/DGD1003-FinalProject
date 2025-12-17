@@ -2,10 +2,15 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform target;       // Takip edilecek hedef (Player)
+    private Transform target;       // Takip edilecek hedef (Player)
     public float smoothSpeed = 0.125f; // Yumuşaklık ayarı (0 ile 1 arası)
     public Vector3 offset;         // Kamera ile oyuncu arasındaki mesafe farkı
 
+
+    void Start()
+    {
+        target = GameObject.FindGameObjectWithTag("Player").transform;
+    }
     void LateUpdate() // Kamera işlemleri için LateUpdate en iyisidir (titremeyi önler)
     {
         // Hedefimiz (oyuncu) hala hayattaysa
