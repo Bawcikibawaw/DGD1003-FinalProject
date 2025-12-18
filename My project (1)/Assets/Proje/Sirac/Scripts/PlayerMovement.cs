@@ -8,28 +8,27 @@ public class PlayerMovement : MonoBehaviour
     [Header("Hareket & Savaş")]
     public float moveSpeed = 5f; 
 
+    // --- EKSİK OLAN KISIMLAR EKLENDİ ---
+    [Header("Silah Ayarları")]
+    public GameObject bulletPrefab; // Mermi prefabını buraya sürükle
+    public Transform firePoint;     // Silahın ucundaki objeyi buraya sürükle
+    // -----------------------------------
+
     [Header("Can Ayarları")]
     public int maxHealth = 100; 
     public int currentHealth;   
-    //public Slider healthBar;    
-
-    [Header("Cheat (Ulti) Ayarları")]
     
-    //public Slider cheatBar;      
+    [Header("Cheat (Ulti) Ayarları")]
     public int maxCheat = 100;   
     public int currentCheat = 0; 
 
-    // --- YENİ EKLENEN KISIM: KAMERA TİTREME AYARLARI ---
-    [Header("Kamera Titreme Ayarları (Camera Shake)")]
-    public float shootShakeDuration = 0.1f; // Ateş edince ne kadar sürsün?
-    public float shootShakePower = 0.1f;    // Ateş edince ne kadar şiddetli olsun?
-    
-    public float damageShakeDuration = 0.2f; // Hasar alınca ne kadar sürsün?
-    public float damageShakePower = 0.3f;    // Hasar alınca ne kadar şiddetli olsun?
+    [Header("Kamera Titreme Ayarları")]
+    public float shootShakeDuration = 0.1f;
+    public float shootShakePower = 0.1f;
+    public float damageShakeDuration = 0.2f; 
+    public float damageShakePower = 0.3f;    
 
     public static PlayerMovement Instance;
-
-    // ---------------------------------------------------
 
     [Header("Durumlar")]
     public bool isInvincible = false; 
@@ -67,7 +66,7 @@ public class PlayerMovement : MonoBehaviour
             moveInput = move.normalized; 
         }
         
-        if (Mouse.current != null) 
+        if (Mouse.current != null && cam != null) 
         {
             mousePos = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         }
@@ -89,15 +88,27 @@ public class PlayerMovement : MonoBehaviour
             return; 
         }
         
+        // 1. HAREKET
         rb.linearVelocity = moveInput * moveSpeed;
+
+        // 2. MOUSE'A DÖNME (ROTATION) - BU EKSİKTİ EKLENDİ
+        Vector2 lookDir = mousePos - rb.position;
+        float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
+        rb.rotation = angle;
     }
 
     void Shoot()
     {
-        // TİTREME BURADA ÇAĞRILIYOR (Senin ayarladığın değerlerle)
+        // 1. KAMERA TİTREMESİ
         if (CameraShake.instance != null)
         {
             CameraShake.instance.Shake(shootShakeDuration, shootShakePower); 
+        }
+
+        // 2. MERMİ OLUŞTURMA - BU EKSİKTİ EKLENDİ
+        if (bulletPrefab != null && firePoint != null)
+        {
+            Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         }
     }
 
@@ -116,8 +127,6 @@ public class PlayerMovement : MonoBehaviour
         lastDamageTime = Time.time; 
         Debug.Log("Hasar alındı! Kalan Can: " + currentHealth);
         
-
-        // TİTREME BURADA ÇAĞRILIYOR (Senin ayarladığın değerlerle)
         if (CameraShake.instance != null)
         {
             CameraShake.instance.Shake(damageShakeDuration, damageShakePower); 
