@@ -12,6 +12,14 @@ public class KnightWeapon : MonoBehaviour
     private int currentComboIndex = 0;
     private float lastClickTime = 0f;
     private float nextFireTime = 0f;
+    public bool isAttacking = false;
+    private Animator anim;
+
+
+    void Start()
+    {
+        anim = GetComponent<Animator>();
+    }
 
     void Update()
     {
@@ -23,12 +31,15 @@ public class KnightWeapon : MonoBehaviour
         
         if (Input.GetMouseButtonDown(0) && Time.time >= nextFireTime)
         {
+            isAttacking = true;
             ExecuteComboStep();
         }
     }
 
     void ExecuteComboStep()
     {
+        anim.SetInteger("currentAttack" , currentComboIndex);
+        
         GameObject prefabToSpawn = comboPrefabs[currentComboIndex];
         
         Quaternion spawnRotation = firePoint.rotation * prefabToSpawn.transform.rotation;
@@ -40,7 +51,8 @@ public class KnightWeapon : MonoBehaviour
         //Update timer
         lastClickTime = Time.time;
         nextFireTime = Time.time + baseFireRate;
-
+        
+        
         //Increase combo step
         currentComboIndex++;
 
