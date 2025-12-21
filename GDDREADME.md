@@ -1,8 +1,4 @@
-Harika bir fikir! Geliştirdiğin oyun artık elle tutulur bir noktaya geldiği için, onu profesyonelce belgeleyen bir GDD (Game Design Document) yazmak çok önemli. Bu belgeyi ileride portfolyona koyabilir veya takım arkadaşlarınla paylaşabilirsin.
 
-Oyunun mevcut mekaniklerine (Wave sistemi, Arena, Top-Down Shooter, Health System, Audio) dayanarak hazırladığım İngilizce GDD aşağıdadır.
-
-Kopyalayıp bir Word veya PDF dosyasına yapıştırabilirsin.
 
 GAME DESIGN DOCUMENT (GDD)
 Project Name: Arena of Bones (Placeholder Title) Genre: 2D Top-Down Shooter / Arena Survivor Platform: PC (Windows/Mac) Engine: Unity 6 Target Audience: Hardcore gamers, Roguelite fans, Retro arcade lovers.
