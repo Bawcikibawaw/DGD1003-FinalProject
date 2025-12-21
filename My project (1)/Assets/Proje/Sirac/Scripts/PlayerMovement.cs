@@ -1,22 +1,21 @@
 using UnityEngine;
 using UnityEngine.InputSystem; 
 using UnityEngine.SceneManagement; 
-using UnityEngine.UI; 
+using UnityEngine.UI; // Slider için gerekli kütüphane
 
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Hareket & Savaş")]
     public float moveSpeed = 5f; 
 
-    // --- EKSİK OLAN KISIMLAR EKLENDİ ---
     [Header("Silah Ayarları")]
-    public GameObject bulletPrefab; // Mermi prefabını buraya sürükle
-    public Transform firePoint;     // Silahın ucundaki objeyi buraya sürükle
-    // -----------------------------------
+    public GameObject bulletPrefab; 
+    public Transform firePoint;     
 
     [Header("Can Ayarları")]
     public int maxHealth = 100; 
-    public int currentHealth;   
+    public int currentHealth;
+    public Slider healthSlider; // --- EKLENEN: Can barı slider'ı ---
     
     [Header("Cheat (Ulti) Ayarları")]
     public int maxCheat = 100;   
@@ -49,6 +48,18 @@ public class PlayerMovement : MonoBehaviour
         timeRewind = GetComponent<TimeRewind>();
 
         currentHealth = maxHealth;
+
+        // --- EKLENEN: Oyun başlayınca Slider'ı fulle ---
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = currentHealth;
+        }
+        else
+        {
+            Debug.LogWarning("Player scriptinde 'Health Slider' boş! Can barı çalışmayacak.");
+        }
+        // -----------------------------------------------
         
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
@@ -56,6 +67,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        // Hareket Girdisi (New Input System)
         if (Keyboard.current != null)
         {
             Vector2 move = Vector2.zero;
@@ -66,11 +78,13 @@ public class PlayerMovement : MonoBehaviour
             moveInput = move.normalized; 
         }
         
+        // Mouse Pozisyonu
         if (Mouse.current != null && cam != null) 
         {
             mousePos = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         }
 
+        // Ateş Etme
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             if (timeRewind == null || !timeRewind.IsRewinding())
@@ -82,6 +96,7 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        // Zaman geri sarılıyorsa hareket etme
         if (timeRewind != null && timeRewind.IsRewinding())
         {
             rb.linearVelocity = Vector2.zero; 
@@ -91,7 +106,7 @@ public class PlayerMovement : MonoBehaviour
         // 1. HAREKET
         rb.linearVelocity = moveInput * moveSpeed;
 
-        // 2. MOUSE'A DÖNME (ROTATION) - BU EKSİKTİ EKLENDİ
+        // 2. MOUSE'A DÖNME
         Vector2 lookDir = mousePos - rb.position;
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         rb.rotation = angle;
@@ -99,13 +114,11 @@ public class PlayerMovement : MonoBehaviour
 
     void Shoot()
     {
-        // 1. KAMERA TİTREMESİ
         if (CameraShake.instance != null)
         {
             CameraShake.instance.Shake(shootShakeDuration, shootShakePower); 
         }
 
-        // 2. MERMİ OLUŞTURMA - BU EKSİKTİ EKLENDİ
         if (bulletPrefab != null && firePoint != null)
         {
             Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
@@ -116,6 +129,7 @@ public class PlayerMovement : MonoBehaviour
     {
         currentCheat += amount;
         if (currentCheat > maxCheat) currentCheat = maxCheat;
+        // İleride buraya Cheat Bar Slider'ı da eklenebilir
     }
     
     public void TakeDamage(int damage)
@@ -125,6 +139,14 @@ public class PlayerMovement : MonoBehaviour
 
         currentHealth -= damage;
         lastDamageTime = Time.time; 
+        
+        // --- EKLENEN: Hasar alınca Slider'ı düşür ---
+        if (healthSlider != null)
+        {
+            healthSlider.value = currentHealth;
+        }
+        // --------------------------------------------
+
         Debug.Log("Hasar alındı! Kalan Can: " + currentHealth);
         
         if (CameraShake.instance != null)
