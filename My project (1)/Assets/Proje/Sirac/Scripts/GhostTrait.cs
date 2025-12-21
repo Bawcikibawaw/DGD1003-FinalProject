@@ -1,11 +1,11 @@
 using UnityEngine;
-// using UnityEngine.InputSystem; // Artık buna gerek yok
+
 
 public class GhostTrait : MonoBehaviour
 {
     [Header("Yetenek Ayarları")]
     public float duration = 5f;    
-    public float cheatCost = 50f; // (YENİ) Bu yeteneğin Cheat Bar maliyeti
+    public float cheatCost = 50f; //  Bu yeteneğin Cheat Bar maliyeti
 
     private SpriteRenderer sr;
     private PlayerMovement playerMovement; // PlayerMovement scriptini tutar
@@ -18,7 +18,7 @@ public class GhostTrait : MonoBehaviour
         // PlayerMovement scriptinin karakter objesinin üzerinde olduğunu varsayıyoruz.
         playerMovement = GetComponent<PlayerMovement>();
         
-        // LevelSystem'ı sahnede bul (GameManager objesi üzerinde olmalı)
+        // LevelSystem'ı sahnede bul 
         levelSystem = LevelSystem.instance; 
     }
 
