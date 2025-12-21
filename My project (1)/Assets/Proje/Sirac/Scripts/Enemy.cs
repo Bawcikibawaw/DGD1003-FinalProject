@@ -1,20 +1,22 @@
 using UnityEngine;
 using UnityEngine.UI; 
 using System.Collections;
-using System.ComponentModel.Design.Serialization;
 
 public class Enemy : MonoBehaviour
 {
     [Header("Can Ayarları")]
     private int currentHealth;
 
-    [Header("Loot (Eşya) Sistemi")]
-    public GameObject lootPrefab; // Can kutusu prefabını buraya sürükle
-    [Range(0, 100)] public int dropChance = 20; // %20 düşme şansı
+    [Header("Saldırı Ayarları (YENİ)")]
+    public int attackDamage = 10;       // Oyuncuya kaç vursun?
+    public float attackCooldown = 1.5f; // Kaç saniyede bir vursun?
+    private float lastAttackTime;       // Son vuruş zamanı
 
-    [Header("Level XP & Güç Sistemi")]
-    public float xpAmount = 20f; // Bu düşman ölünce kaç XP versin?
-    public float cheatValueOnDeath = 10f; // (YENİ) Ölünce Cheat Bar'a kaç değer eklesin?
+    [Header("Loot & XP")]
+    public GameObject lootPrefab; 
+    [Range(0, 100)] public int dropChance = 20; 
+    public float xpAmount = 20f; 
+    public float cheatValueOnDeath = 10f; 
 
     [Header("UI & Görsel")]
     public Slider healthBar; 
@@ -25,34 +27,43 @@ public class Enemy : MonoBehaviour
     public GameObject damagePopupPrefab; 
     public AudioClip hitSound; 
 
+    // Bileşenler
+    private Animator anim;
+    private Rigidbody2D rb;
+    private EnemyMovement movementScript; // Hareketi durdurmak için
+    private bool isDead = false; 
+
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
-        EnemyMovement movement = GetComponent<EnemyMovement>(); 
+        anim = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
+        movementScript = GetComponent<EnemyMovement>(); 
 
-        // --- RASTGELE DÜŞMAN TİPİ BELİRLEME ---
+        // --- RASTGELE DÜŞMAN TİPİ ---
+        // (Buradaki kodların aynen kalıyor, sadece scale değerlerini büyüttük)
         int zar = Random.Range(0, 100); 
 
-        if (zar < 30) // KOŞUCU (%30)
+        if (zar < 30) // KOŞUCU
         {
-            transform.localScale = new Vector3(0.8f, 0.8f, 1f); 
-            if (movement != null) movement.moveSpeed = 5f; 
+            transform.localScale = new Vector3(2.5f, 2.5f, 1f); 
+            if (movementScript != null) movementScript.moveSpeed = 5f; 
             currentHealth = 60; 
             if (sr != null) sr.color = new Color(0.5f, 1f, 0.5f); 
             xpAmount = 15f; 
         }
-        else if (zar > 85) // TANK (%15)
+        else if (zar > 85) // TANK
         {
-            transform.localScale = new Vector3(1.5f, 1.5f, 1f);
-            if (movement != null) movement.moveSpeed = 1.5f; 
+            transform.localScale = new Vector3(4.5f, 4.5f, 1f);
+            if (movementScript != null) movementScript.moveSpeed = 1.5f; 
             currentHealth = 400; 
             if (sr != null) sr.color = new Color(1f, 0.5f, 0.5f); 
             xpAmount = 50f; 
         }
-        else // NORMAL (%55)
+        else // NORMAL
         {
-            transform.localScale = Vector3.one; 
-            if (movement != null) movement.moveSpeed = 3f; 
+            transform.localScale = new Vector3(3f, 3f, 1f); 
+            if (movementScript != null) movementScript.moveSpeed = 3f; 
             currentHealth = 150; 
             if (sr != null) sr.color = Color.white; 
             xpAmount = 25f;
@@ -68,16 +79,72 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    // --- OVERLOAD 1: ANA HASAR ALMA FONKSİYONU ---
+    void Update()
+    {
+        if (isDead) return;
+
+        // Hareket animasyonu (Speed)
+        if (anim != null && rb != null)
+        {
+            float speed = rb.linearVelocity.magnitude;
+            anim.SetFloat("Speed", speed);
+        }
+    }
+
+    // --- YENİ: ÇARPIŞMA VE SALDIRI MANTIĞI ---
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if (isDead) return;
+
+        // Çarptığım şey Oyuncu mu?
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            // Saldırı zamanı geldi mi?
+            if (Time.time > lastAttackTime + attackCooldown)
+            {
+                Attack(collision.gameObject);
+            }
+        }
+    }
+
+    void Attack(GameObject playerObj)
+    {
+        lastAttackTime = Time.time;
+
+        // 1. Animasyonu Oynat
+        if (anim != null) anim.SetTrigger("Attack");
+
+        // 2. Oyuncuya Hasar Ver (PlayerMovement scriptindeki TakeDamage'i çağır)
+        PlayerMovement playerScript = playerObj.GetComponent<PlayerMovement>();
+        if (playerScript != null)
+        {
+            playerScript.TakeDamage(attackDamage);
+        }
+
+        // 3. Saldırı sırasında düşmanı kısa süre dondur (Daha iyi hissettirir)
+        StartCoroutine(StopMovementBriefly());
+    }
+
+    IEnumerator StopMovementBriefly()
+    {
+        if (movementScript != null) movementScript.enabled = false; // Hareketi kapat
+        rb.linearVelocity = Vector2.zero; // Anında dur
+        
+        yield return new WaitForSeconds(0.5f); // 0.5 saniye bekle (Animasyon süresi kadar)
+        
+        if (!isDead && movementScript != null) movementScript.enabled = true; // Hareketi aç
+    }
+    // ------------------------------------------
+
     public void TakeDamage(int damage, bool isCritical)
     {
+        if (isDead) return;
+
         currentHealth -= damage;
-
         if (healthBar != null) healthBar.value = currentHealth;
-        
         if (sr != null) StartCoroutine(FlashEffect());
+        if (anim != null) anim.SetTrigger("Hurt");
 
-        // HASAR YAZISI
         if (damagePopupPrefab != null)
         {
             Vector3 spawnPosition = transform.position + new Vector3(0, 0.5f, 0);
@@ -85,28 +152,13 @@ public class Enemy : MonoBehaviour
             popup.GetComponent<DamagePopup>().Setup(damage, isCritical);
         }
 
-        // SES
-        if (hitSound != null)
-        {
-            AudioSource.PlayClipAtPoint(hitSound, transform.position);
-        }
+        if (hitSound != null) AudioSource.PlayClipAtPoint(hitSound, transform.position);
 
         if (currentHealth <= 0) Die();
     }
 
-    // --- OVERLOAD 2: Tek parametre (int damage) gönderilirse (Mermi, Patlayan Fıçı) ---
-    public void TakeDamage(int damage)
-    {
-        // Varsayılan olarak kritik değil (false) kabul et
-        TakeDamage(damage, false);
-    }
-    
-    // --- OVERLOAD 3: Üç parametre (int damage, float knockback) gönderilirse ---
-    public void TakeDamage(int damage, float knockback)
-    {
-        // Knockback'i şimdilik yok sayıp, ana fonksiyona yolla
-        TakeDamage(damage, false);
-    }
+    public void TakeDamage(int damage) { TakeDamage(damage, false); }
+    public void TakeDamage(int damage, float knockback) { TakeDamage(damage, false); }
 
     IEnumerator FlashEffect()
     {
@@ -117,31 +169,29 @@ public class Enemy : MonoBehaviour
 
     void Die()
     {
-        // 1. XP VERME İŞLEMİ 
+        if (isDead) return;
+        isDead = true;
+
+        if (rb != null) rb.linearVelocity = Vector2.zero;
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+        if (movementScript != null) movementScript.enabled = false; // Hareketi tamamen kapat
+
+        if (anim != null) anim.SetTrigger("Die");
+
         if (LevelSystem.instance != null)
         {
             LevelSystem.instance.AddExperience(xpAmount);
-        }
-        
-        // 2. CHEAT BAR DOLDURMA İŞLEMİ (YENİ EKLENDİ!)
-        // Eğer Cheat Bar sistemi (PlayerStats veya LevelSystem içinde) varsa
-        // Bu kod LevelSystem içinde AddCheatValue fonksiyonunun olduğunu varsayar.
-        if (LevelSystem.instance != null)
-        {
-            // LevelSystem.cs scriptinin içinde AddCheatValue(float amount) fonksiyonu OLMALI!
             LevelSystem.instance.AddCheatValue(cheatValueOnDeath);
         }
 
-        // 3. LOOT DÜŞÜRME İŞLEMİ
-        if (lootPrefab != null)
+        if (lootPrefab != null && Random.Range(0, 100) <= dropChance)
         {
-            if (Random.Range(0, 100) <= dropChance)
-            {
-                Instantiate(lootPrefab, transform.position, Quaternion.identity);
-            }
+            Instantiate(lootPrefab, transform.position, Quaternion.identity);
         }
 
-        Destroy(gameObject);
-        PlayerMovement.Instance.AddCheatCharge(5);
+        if (PlayerMovement.Instance != null) PlayerMovement.Instance.AddCheatCharge(5);
+
+        Destroy(gameObject, 1f); 
     }
 }

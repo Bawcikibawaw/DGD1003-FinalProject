@@ -4,22 +4,22 @@ public class EnemyAI : MonoBehaviour
 {
     public float moveSpeed = 3f; 
 
-    private Rigidbody2D rb;
-    
-    // --- DÜZELTME BURADA ---
-    // Başındaki 'private' (veya boşluk) yerine 'public' yazdık.
-    // Artık Ghost script'i buna erişip hafızayı silebilir.
+    // Ghost script'i için public bıraktık
     public Transform playerTarget; 
-    // -----------------------
 
+    private Rigidbody2D rb;
+    private SpriteRenderer sr; // YENİ: Resmi çevirmek için lazım
     private TimeRewind timeRewind; 
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>(); // SpriteRenderer'ı al
         timeRewind = GetComponent<TimeRewind>(); 
 
-        // Sahnedeki "Player" etiketli objeyi bul ve ona kilitlen
+        // 1. DÖNMEYİ FİZİKSEL OLARAK KİLİTLE
+        if (rb != null) rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
         if (playerObject != null)
         {
@@ -29,27 +29,42 @@ public class EnemyAI : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Zaman geri sarma kontrolü
         if (timeRewind != null && timeRewind.IsRewinding())
         {
             rb.linearVelocity = Vector2.zero; 
             return; 
         }
 
-        // Hedefe doğru git (Sadece hedef varsa!)
         if (playerTarget != null)
         {
             Vector2 direction = (playerTarget.position - transform.position).normalized;
             rb.linearVelocity = direction * moveSpeed;
 
-            // Düşmanı oyuncuya döndür
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-            rb.MoveRotation(angle);
+            // --- ESKİ HATALI KOD (SİLİNDİ) ---
+            // float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+            // rb.MoveRotation(angle); 
+            // ---------------------------------
+
+            // --- YENİ DOĞRU KOD (SADECE RESMİ ÇEVİR) ---
+            if (direction.x > 0)
+            {
+                sr.flipX = false; // Sağa bak
+            }
+            else if (direction.x < 0)
+            {
+                sr.flipX = true; // Sola bak (Aynala)
+            }
         }
         else
         {
-            // Hedef yoksa (Ghost mode açıldıysa) dur
             rb.linearVelocity = Vector2.zero;
         }
+    }
+
+    // --- ZORLA DÜZeltme (GARANTİ ÇÖZÜM) ---
+    void LateUpdate()
+    {
+        // Eğer başka bir script veya animasyon döndürmeye çalışırsa engelle
+        transform.rotation = Quaternion.identity;
     }
 }
