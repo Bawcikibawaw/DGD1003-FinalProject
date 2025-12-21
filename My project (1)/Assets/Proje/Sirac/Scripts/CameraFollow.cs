@@ -2,27 +2,44 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    private Transform target;       // Takip edilecek hedef (Player)
-    public float smoothSpeed = 0.125f; // Yumuşaklık ayarı (0 ile 1 arası)
-    public Vector3 offset;         // Kamera ile oyuncu arasındaki mesafe farkı
+    private Transform target;       
+    public float smoothSpeed = 0.125f; 
+    public Vector3 offset;         
 
+    [Header("Harita Sınırları (Clamp)")]
+    public float minX;  // Haritanın en sol noktası
+    public float maxX;  // Haritanın en sağ noktası
+    public float minY;  // Haritanın en alt noktası
+    public float maxY;  // Haritanın en üst noktası
 
     void Start()
     {
-        target = GameObject.FindGameObjectWithTag("Player").transform;
+        // Eğer target elle atanmadıysa otomatik bul
+        if (target == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null) target = playerObj.transform;
+        }
     }
-    void LateUpdate() // Kamera işlemleri için LateUpdate en iyisidir (titremeyi önler)
+
+    void LateUpdate() 
     {
-        // Hedefimiz (oyuncu) hala hayattaysa
         if (target != null)
         {
-            // Gitmek istediğimiz son pozisyon: Oyuncunun yeri + aradaki fark
+            // 1. Gitmek istediğimiz ham pozisyon
             Vector3 desiredPosition = target.position + offset;
 
-            // Şu anki yerden gitmek istediğimiz yere yumuşakça kay (Lerp)
-            Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
+            // 2. --- YENİ KISIM: SINIRLAMA (CLAMP) ---
+            // Kameranın X ve Y değerlerini belirlediğimiz kutunun içinde tutuyoruz
+            float clampedX = Mathf.Clamp(desiredPosition.x, minX, maxX);
+            float clampedY = Mathf.Clamp(desiredPosition.y, minY, maxY);
 
-            // Kamerayı yeni pozisyona taşı
+            // Sınırlandırılmış yeni hedef pozisyonumuz
+            Vector3 clampedPosition = new Vector3(clampedX, clampedY, desiredPosition.z);
+
+            // 3. Yumuşak geçişi bu yeni sınırlandırılmış pozisyona göre yap
+            Vector3 smoothedPosition = Vector3.Lerp(transform.position, clampedPosition, smoothSpeed);
+
             transform.position = smoothedPosition;
         }
     }
