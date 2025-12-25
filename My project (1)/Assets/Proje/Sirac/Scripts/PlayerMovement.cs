@@ -8,14 +8,9 @@ public class PlayerMovement : MonoBehaviour
     [Header("Hareket & Savaş")]
     public float moveSpeed = 5f; 
 
-    [Header("Silah Ayarları")]
-    public GameObject bulletPrefab; 
-    public Transform firePoint;     
-
     [Header("Can Ayarları")]
     public int maxHealth = 100; 
     public int currentHealth;
-    public Slider healthSlider; 
     
     [Header("Cheat (Ulti) Ayarları")]
     public int maxCheat = 100;   
@@ -37,6 +32,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 mousePos;    
     private Camera cam; 
     private TimeRewind timeRewind; 
+    private SpriteRenderer sr;
+    private Animator anim;
 
     private float lastDamageTime;
     private float damageCooldown = 1f; 
@@ -46,15 +43,11 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         cam = Camera.main; 
         timeRewind = GetComponent<TimeRewind>();
+        sr = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
 
         currentHealth = maxHealth;
-
-        // Slider Ayarı
-        if (healthSlider != null)
-        {
-            healthSlider.maxValue = maxHealth;
-            healthSlider.value = currentHealth;
-        }
+        
         
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
@@ -65,7 +58,7 @@ public class PlayerMovement : MonoBehaviour
         if (Keyboard.current != null)
         {
             Vector2 move = Vector2.zero;
-            if (Keyboard.current.wKey.isPressed) move.y += 1;
+            if (Keyboard.current.wKey.isPressed){ move.y += 1;}
             if (Keyboard.current.sKey.isPressed) move.y -= 1;
             if (Keyboard.current.aKey.isPressed) move.x -= 1;
             if (Keyboard.current.dKey.isPressed) move.x += 1;
@@ -84,6 +77,11 @@ public class PlayerMovement : MonoBehaviour
                 Shoot();
             }
         }
+        
+        float horizontalSpeed = Mathf.Abs(moveInput.x);
+        anim.SetFloat("Speed", horizontalSpeed);
+        
+        Debug.Log("Animatöre giden hız: " + horizontalSpeed);
     }
 
     void FixedUpdate()
@@ -96,11 +94,8 @@ public class PlayerMovement : MonoBehaviour
         
         // Hareket
         rb.linearVelocity = moveInput * moveSpeed;
-
-        // Mouse'a Dönme
-        Vector2 lookDir = mousePos - rb.position;
-        float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
-        rb.rotation = angle;
+        
+        HandleFlipping();
     }
 
     void Shoot()
@@ -108,11 +103,6 @@ public class PlayerMovement : MonoBehaviour
         if (CameraShake.instance != null)
         {
             CameraShake.instance.Shake(shootShakeDuration, shootShakePower); 
-        }
-
-        if (bulletPrefab != null && firePoint != null)
-        {
-            Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         }
     }
 
@@ -130,11 +120,6 @@ public class PlayerMovement : MonoBehaviour
         currentHealth -= damage;
         lastDamageTime = Time.time; 
         
-        // Slider Güncelle
-        if (healthSlider != null)
-        {
-            healthSlider.value = currentHealth;
-        }
 
         Debug.Log("Health: " + currentHealth);
         
@@ -168,5 +153,23 @@ public class PlayerMovement : MonoBehaviour
 
         // 2. Oyuncuyu yok etme, sadece gizle (Kamera ve Manager bozulmasın)
         gameObject.SetActive(false);
+    }
+    
+    private void HandleFlipping()
+    {
+        // Only attempt to flip if the SpriteRenderer exists and there is horizontal input
+        if (sr != null && moveInput.x != 0)
+        {
+            // If moving right (positive input), ensure the sprite is NOT flipped (false)
+            if (moveInput.x > 0)
+            {
+                sr.flipX = false;
+            }
+            // If moving left (negative input), flip the sprite (true)
+            else if (moveInput.x < 0)
+            {
+                sr.flipX = true;
+            }
+        }
     }
 }

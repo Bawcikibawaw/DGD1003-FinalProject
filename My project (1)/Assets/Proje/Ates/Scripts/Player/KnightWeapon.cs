@@ -12,9 +12,7 @@ public class KnightWeapon : MonoBehaviour
     private int currentComboIndex = 0;
     private float lastClickTime = 0f;
     private float nextFireTime = 0f;
-    public bool isAttacking = false;
     private Animator anim;
-
 
     void Start()
     {
@@ -23,7 +21,7 @@ public class KnightWeapon : MonoBehaviour
 
     void Update()
     {
-        // Kombo penceresi kontrolü
+        // Kombo penceresi aşılırsa sıfırla
         if (Time.time - lastClickTime > comboWindow && currentComboIndex > 0)
         {
             ResetCombo();
@@ -31,41 +29,39 @@ public class KnightWeapon : MonoBehaviour
         
         if (Input.GetMouseButtonDown(0) && Time.time >= nextFireTime)
         {
-            isAttacking = true;
             ExecuteComboStep();
         }
     }
 
     void ExecuteComboStep()
     {
-        anim.SetInteger("currentAttack" , currentComboIndex);
+        // 1. Önce Hangi Kombo Olduğunu Bildir
+        anim.SetInteger("ComboIndex", currentComboIndex);
         
-        GameObject prefabToSpawn = comboPrefabs[currentComboIndex];
-        
-        Quaternion spawnRotation = firePoint.rotation * prefabToSpawn.transform.rotation;
-        
-        Instantiate(prefabToSpawn, firePoint.position, spawnRotation);
-        
-        Debug.Log("Atılan Obje: " + prefabToSpawn.name + " | Kombo Adımı: " + (currentComboIndex + 1));
+        // 2. Sonra Tetikleyiciyi (Trigger) Çalıştır
+        anim.SetTrigger("Attack");
 
-        //Update timer
+        // Prefab oluşturma mantığı
+        GameObject prefabToSpawn = comboPrefabs[currentComboIndex];
+        Quaternion spawnRotation = firePoint.rotation * prefabToSpawn.transform.rotation;
+        Instantiate(prefabToSpawn, firePoint.position, spawnRotation);
+
         lastClickTime = Time.time;
         nextFireTime = Time.time + baseFireRate;
         
-        
-        //Increase combo step
         currentComboIndex++;
 
-        //If combo end reset
         if (currentComboIndex >= comboPrefabs.Count)
         { 
-            ResetCombo();
+            // Kombo bittiğinde bir sonraki tık için hazırla
+            currentComboIndex = 0; 
         }
     }
 
-    void ResetCombo()
+    public void ResetCombo()
     {
         currentComboIndex = 0;
+        anim.SetInteger("ComboIndex", 0);
         Debug.Log("Kombo sıfırlandı.");
     }
 }

@@ -12,7 +12,7 @@ public class ResetAttackScript : StateMachineBehaviour
         KnightWeapon weapon = animator.GetComponent<KnightWeapon>();
         if (weapon != null)
         {
-            weapon.isAttacking = false;
+            weapon.ResetCombo(); // Bu fonksiyon indeksi 0 yapar
         }
     }
 }

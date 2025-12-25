@@ -13,17 +13,8 @@ public class HealthPickup : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
-            PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
-
-            if (playerHealth != null)
-            {
-                playerHealth.Heal(healAmount);
+                PlayerMovement.Instance.currentHealth += healAmount;
                 Destroy(gameObject);
-            }
-            else
-            {
-                Debug.LogError("Player etiketi doğru ama üzerinde 'PlayerHealth' scripti YOK!");
-            }
         }
     }
 }

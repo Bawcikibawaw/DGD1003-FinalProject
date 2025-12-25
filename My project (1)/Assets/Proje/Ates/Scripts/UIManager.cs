@@ -7,8 +7,6 @@ public class UIManager : MonoBehaviour
 
     public Slider cheathBar;
     
-    private PlayerMovement playerMovement;
-    
     void Update()
     {
         healthBar.value = PlayerMovement.Instance.currentHealth;

@@ -21,9 +21,6 @@ public class LevelSystem : MonoBehaviour
     public Slider cheatSlider;
     public GameObject levelUpPanel; 
     
-    [Header("Oyuncu Scriptleri")]
-    public PlayerMovement playerMoveScript; 
-    public PlayerHealth playerHealthScript; 
 
     void Awake()
     {
@@ -97,21 +94,17 @@ public class LevelSystem : MonoBehaviour
     
     public void UpgradeSpeed()
     {
-        if (playerMoveScript != null)
-        {
-            playerMoveScript.moveSpeed += 1f; 
+            PlayerMovement.Instance.moveSpeed += 1f; 
             Debug.Log("Hız Artırıldı!");
-        }
+            
         CloseMenuAndResume();
     }
     
     public void UpgradeHealth()
     {
-        if (playerHealthScript != null)
-        {
-            playerHealthScript.Heal(30); 
+        PlayerMovement.Instance.currentCheat += 30; 
             Debug.Log("Can Yenilendi!");
-        }
+        
         CloseMenuAndResume();
     }
 

@@ -35,7 +35,7 @@ public class Bullet : MonoBehaviour
         
         if (enemy != null)
         {
-            Destroy(gameObject);
+            //Destroy(gameObject);
             
             // A. KRİTİK HESAPLAMA
             bool isCritical = Random.Range(0, 100) < critChance;
