@@ -103,12 +103,12 @@ TextureImporter:
       name: 2d_arena_for_2k_202512211736_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 2752
-        height: 1536
+        x: 887
+        y: 990
+        width: 153
+        height: 357
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -117,6 +117,72 @@ TextureImporter:
       bones: []
       spriteID: 9dced4b4840ca17e0800000000000000
       internalID: -1793910084820144935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d_arena_for_2k_202512211736_1
+      rect:
+        serializedVersion: 2
+        x: 1698
+        y: 995
+        width: 163
+        height: 352
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7d72f4691190f492f91c76174947064c
+      internalID: -1304186915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d_arena_for_2k_202512211736_2
+      rect:
+        serializedVersion: 2
+        x: 1708
+        y: 245
+        width: 148
+        height: 361
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5dbed343c30de4c8388c1cda52b9c47a
+      internalID: 1867616039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d_arena_for_2k_202512211736_3
+      rect:
+        serializedVersion: 2
+        x: 887
+        y: 237
+        width: 151
+        height: 367
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 61bc5ced8938348efb70927bfb3c3874
+      internalID: -2074708350
       vertices: []
       indices: 
       edges: []
@@ -136,6 +202,9 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       2d_arena_for_2k_202512211736_0: -1793910084820144935
+      2d_arena_for_2k_202512211736_1: -1304186915
+      2d_arena_for_2k_202512211736_2: 1867616039
+      2d_arena_for_2k_202512211736_3: -2074708350
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
