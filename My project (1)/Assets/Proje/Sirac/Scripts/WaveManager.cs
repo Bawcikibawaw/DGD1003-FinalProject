@@ -1,33 +1,43 @@
 using UnityEngine;
 using System.Collections;
-using TMPro; // UI (Yazı) için gerekli
+using System.Collections.Generic; // Listeleri kullanmak için
+using TMPro;
 
 public class WaveManager : MonoBehaviour
 {
-    // Wave (Dalga) Özellikleri için bir sınıf
+    // --- 1. YENİ YAPILAR ---
+    
+    // Her bir düşman türü ve sayısı için küçük kutucuk
+    [System.Serializable]
+    public class WaveEnemy
+    {
+        public GameObject enemyPrefab; // Hangi düşman?
+        public int count;            // Bundan kaç tane olsun?
+    }
+
+    // Bir Dalganın (Wave) genel ayarları
     [System.Serializable]
     public class Wave
     {
-        public string waveName;      // Örn: "Isinma Turu"
-        public GameObject enemyPrefab; // Hangi düşman gelecek?
-        public int count;            // Kaç tane gelecek?
-        public float rate;           // Ne sıklıkla doğacak? (Saniye)
+        public string waveName;      // Örn: "Karışık Saldırı"
+        public WaveEnemy[] enemies;  // BU DALGADA GELECEK TÜRLER LİSTESİ
+        public float rate;           // Saniyede kaç düşman doğsun?
     }
 
     public enum SpawnState { SPAWNING, WAITING, COUNTING };
 
     [Header("Dalga Ayarları")]
-    public Wave[] waves;             // Inspector'dan ayarlayacağımız dalgalar
-    public Transform[] spawnPoints;  // Düşmanların çıkacağı noktalar
-    public float timeBetweenWaves = 5f; // İki dalga arası bekleme süresi
+    public Wave[] waves;             // Tüm dalgaların listesi
+    public Transform[] spawnPoints;  // Haritadaki spawn noktaları
+    public float timeBetweenWaves = 5f;
 
     [Header("UI Ayarları")]
-    public TextMeshProUGUI waveText;      // "Wave: 1" yazısı
-    public TextMeshProUGUI countdownText; // "Sonraki Dalga: 3..." yazısı
+    public TextMeshProUGUI waveText;
+    public TextMeshProUGUI countdownText;
 
     private int nextWave = 0;
     private float waveCountdown;
-    private float searchCountdown = 1f;   // Performans için saniyede 1 kere düşman ara
+    private float searchCountdown = 1f;
     private SpawnState state = SpawnState.COUNTING;
 
     void Start()
@@ -38,7 +48,6 @@ public class WaveManager : MonoBehaviour
 
     void Update()
     {
-        // 1. DÜŞMANLARI KONTROL ET (WAITING MODU)
         if (state == SpawnState.WAITING)
         {
             if (!EnemyIsAlive())
@@ -47,16 +56,14 @@ public class WaveManager : MonoBehaviour
             }
             else
             {
-                return; // Düşmanlar yaşıyorsa bekle, başka işlem yapma
+                return;
             }
         }
 
-        // 2. GERİ SAYIM YAP
         if (waveCountdown <= 0)
         {
             if (state != SpawnState.SPAWNING)
             {
-                // Geri sayım bitti, doğurmaya başla
                 StartCoroutine(SpawnWave(waves[nextWave]));
             }
         }
@@ -64,7 +71,6 @@ public class WaveManager : MonoBehaviour
         {
             waveCountdown -= Time.deltaTime;
             
-            // UI Güncelle (Geri sayım)
             if(countdownText != null)
                 countdownText.text = "Sonraki Dalga: " + Mathf.Round(waveCountdown).ToString();
         }
@@ -79,10 +85,8 @@ public class WaveManager : MonoBehaviour
 
         if (nextWave + 1 > waves.Length - 1)
         {
-            nextWave = 0; // Tüm dalgalar bitti! Başa sar veya oyun bitti ekranı koy.
-            Debug.Log("TÜM DALGALAR BİTTİ! DÖNGÜ BAŞA DÖNDÜ.");
-            
-            // İstersen burada zorluğu artırabilirsin (Multiplier)
+            nextWave = 0;
+            Debug.Log("TÜM DALGALAR BİTTİ! BAŞA DÖNDÜ.");
         }
         else
         {
@@ -95,17 +99,15 @@ public class WaveManager : MonoBehaviour
     bool EnemyIsAlive()
     {
         searchCountdown -= Time.deltaTime;
-        
-        // Her karede GameObject.Find yapmak çok yorar, saniyede 1 kere bakıyoruz
         if (searchCountdown <= 0f)
         {
-            searchCountdown = 1f; // Sayacı sıfırla
+            searchCountdown = 1f;
             if (GameObject.FindGameObjectWithTag("Enemy") == null)
             {
-                return false; // Kimse kalmadı
+                return false;
             }
         }
-        return true; // Hala düşman var
+        return true;
     }
 
     IEnumerator SpawnWave(Wave _wave)
@@ -114,22 +116,47 @@ public class WaveManager : MonoBehaviour
         
         if(countdownText != null) countdownText.text = "SALDIRI BAŞLADI!";
 
-        // Belirlenen sayı kadar düşman doğur
-        for (int i = 0; i < _wave.count; i++)
+        // --- TORBA SİSTEMİ ---
+        List<GameObject> spawnPool = new List<GameObject>();
+
+        foreach (WaveEnemy entry in _wave.enemies)
         {
-            SpawnEnemy(_wave.enemyPrefab);
-            yield return new WaitForSeconds(1f / _wave.rate); // Bekle
+            for (int i = 0; i < entry.count; i++)
+            {
+                spawnPool.Add(entry.enemyPrefab);
+            }
         }
 
-        state = SpawnState.WAITING; // Doğurma bitti, hepsinin ölmesini bekle
+        while (spawnPool.Count > 0)
+        {
+            int randomIndex = Random.Range(0, spawnPool.Count);
+            GameObject enemyToSpawn = spawnPool[randomIndex];
+
+            SpawnEnemy(enemyToSpawn);
+
+            spawnPool.RemoveAt(randomIndex);
+
+            yield return new WaitForSeconds(1f / _wave.rate);
+        }
+
+        state = SpawnState.WAITING;
         yield break;
     }
 
     void SpawnEnemy(GameObject _enemy)
     {
-        // Rastgele bir doğuş noktası seç
+        if (spawnPoints.Length == 0)
+        {
+            Debug.LogError("HATA: Spawn Points listesi boş! Inspector'dan nokta ekle.");
+            return;
+        }
+
         Transform _sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
-        Instantiate(_enemy, _sp.position, _sp.rotation);
+        
+        // --- DÜZELTİLEN SATIR BURASI ---
+        // _sp.rotation YERİNE Quaternion.identity YAZDIK.
+        // Artık spawn noktası yamuk olsa bile düşman DÜZ (0 derece) doğacak.
+        Instantiate(_enemy, _sp.position, Quaternion.identity);
     }
     
     void UpdateWaveUI()
