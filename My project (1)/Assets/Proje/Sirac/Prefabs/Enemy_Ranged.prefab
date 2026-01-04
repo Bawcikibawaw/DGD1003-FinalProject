@@ -277,7 +277,7 @@ MonoBehaviour:
   retreatDistance: 3.5
   startTimeBetweenShots: 2
   projectilePrefab: {fileID: 4545054609703506171, guid: 8cfc5358f76d1413c8008144bc07414a, type: 3}
-  firePoint: {fileID: 0}
+  firePoint: {fileID: 8366679979927344177}
   health: 30
 --- !u!95 &-5128046423472591831
 Animator:
