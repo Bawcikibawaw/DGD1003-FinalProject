@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dashSpeed: 25
-  dashDuration: 0.15
+  dashDuration: 0.3
   dashCooldown: 1
   dashDamage: 20
   enemyTag: Enemy
@@ -193,17 +193,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.060211778, y: 0.09879315}
+  m_Offset: {x: 0.26179075, y: 0.06659317}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.125, y: 2.96875}
+    oldSize: {x: 6.25, y: 5.9375}
     newSize: {x: 2.875, y: 3.4375}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2.0725234, y: 2.7569716}
+  m_Size: {x: 4.7773533, y: 5.3329973}
   m_EdgeRadius: 0
 --- !u!114 &2078277993000366469
 MonoBehaviour:
@@ -218,8 +218,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shieldDuration: 6
+  knightDuration: 5
+  thiefDuration: 4
   wizardEffectPrefab: {fileID: 5354641285486681894, guid: 98dd95863ef47a842b8d6231d3f76923, type: 3}
   verticalOffset: 2
+  wizardEffectDeactivateDelay: 0.5
+  knightDamageBoost: 3
+  isKnightCheatActive: 0
+  cheatZoomSize: 3.5
+  zoomSpeed: 5
+  wizardSlowMoScale: 0.4
+  thiefOpacity: 0.5
 --- !u!95 &8509048764852989332
 Animator:
   serializedVersion: 7
