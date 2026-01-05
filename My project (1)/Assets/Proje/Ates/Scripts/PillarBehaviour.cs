@@ -26,5 +26,12 @@ public class PillarBehaviour : MonoBehaviour
             c.a = 1f;
             pillarTilemap.color = c;
         }
+        else if (other.CompareTag("Enemy"))
+        {
+            // Reset Alpha to 1 (fully visible)
+            Color c = pillarTilemap.color;
+            c.a = 1f;
+            pillarTilemap.color = c;
+        }
     }
 }
