@@ -13,6 +13,7 @@ public class Bullet : MonoBehaviour
 
     [Header("Fizik & His")]
     public float knockbackForce = 5f; // Geri tepme gücü
+    private float damageMultiplier = 1f; // Default multiplier is 1x
 
     private Rigidbody2D rb;
 
@@ -27,6 +28,11 @@ public class Bullet : MonoBehaviour
         // Ömrü dolunca yok et
         Destroy(gameObject, lifetime);
     }
+    
+    public void SetDamageMultiplier(float multiplier)
+    {
+        damageMultiplier = multiplier;
+    }
 
     void OnTriggerEnter2D(Collider2D hitInfo)
     {
@@ -37,11 +43,12 @@ public class Bullet : MonoBehaviour
         {
             //Destroy(gameObject);
             
-            // A. KRİTİK HESAPLAMA
             bool isCritical = Random.Range(0, 100) < critChance;
-            int finalDamage = isCritical ? damage * critMultiplier : damage;
+            
+            // Apply the multiplier to the base damage
+            float boostedDamage = damage * damageMultiplier;
+            int finalDamage = isCritical ? Mathf.RoundToInt(boostedDamage * critMultiplier) : Mathf.RoundToInt(boostedDamage);
         
-            // B. HASARI VER (Kritik bilgisiyle beraber)
             enemy.TakeDamage(finalDamage, isCritical);
         
             // C. VURUŞ İŞARETİ (HIT MARKER) GÖSTER [YENİ EKLENEN]

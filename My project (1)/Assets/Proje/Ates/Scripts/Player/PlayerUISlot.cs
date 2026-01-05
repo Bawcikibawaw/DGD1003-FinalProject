@@ -9,7 +9,6 @@ public class PlayerUISlot : MonoBehaviour
     
     [Header("UI Bağlantıları")]
     public TextMeshProUGUI nameText;
-    public TextMeshProUGUI descText;
     public Button selectButton; // O kutunun üzerindeki buton
 
     [Header("Yönetici Bağlantısı")]
@@ -21,7 +20,6 @@ public class PlayerUISlot : MonoBehaviour
         if (characterData != null)
         {
             nameText.text = characterData.characterName;
-            descText.text = characterData.description;
             
             // Butona tıklanınca ne olacağını ayarla
             selectButton.onClick.AddListener(OnSlotClicked);

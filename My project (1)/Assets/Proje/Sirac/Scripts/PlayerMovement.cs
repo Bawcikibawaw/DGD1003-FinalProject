@@ -92,9 +92,16 @@ public class PlayerMovement : MonoBehaviour
             return; 
         }
         
-        // Hareket
+        // We try to get the TankAttack component. If it exists and is dashing, we stop normal movement.
+        TankAttack tank = GetComponent<TankAttack>();
+        if (tank != null && tank.IsDashing) 
+        {
+            return; // Skip the rest of the movement code so the dash can work
+        }
+    
+        // Normal Movement
         rb.linearVelocity = moveInput * moveSpeed;
-        
+    
         HandleFlipping();
     }
 
