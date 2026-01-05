@@ -6,7 +6,8 @@ public class PlayerCheat : MonoBehaviour
     private int _id;
     private bool _isInitialized = false;
     private Animator anim;
-
+    private Collider2D playerCollider; // Reference to toggle trigger mode
+    
     [Header("General Settings")]
     public float shieldDuration = 3.0f;
     public float knightDuration = 5.0f;
@@ -19,6 +20,7 @@ public class PlayerCheat : MonoBehaviour
     [Header("Knight Ability (ID 1)")]
     public float knightDamageBoost = 3.0f; 
     public bool isKnightCheatActive = false;
+    public float thiefDuration = 4.0f; // Added duration for Thief
 
     [Header("Visual Effects")]
     public float cheatZoomSize = 3.5f;
@@ -33,6 +35,8 @@ public class PlayerCheat : MonoBehaviour
     {
         anim = GetComponent<Animator>();
         mainCam = Camera.main;
+        
+        playerCollider = GetComponent<Collider2D>();
         
         if (mainCam != null)
             originalZoomSize = mainCam.orthographicSize;
@@ -89,6 +93,17 @@ public class PlayerCheat : MonoBehaviour
                 PlayerMovement.Instance.isInvincible = true;
                 anim.SetBool("playerSwitch", true);
                 Invoke("DeactivateGodMode", shieldDuration);
+                break;
+            
+            case 3: // THIEF (Active Buff)
+                ApplyCheatVisuals(true, false);
+                anim.SetBool("playerSwitch", true);
+                
+                // Toggle Trigger ON
+                if (playerCollider != null) playerCollider.isTrigger = true;
+                
+                Debug.Log("Thief: Hayalet Modu Aktif! (IsTrigger = True)");
+                Invoke("DeactivateThiefMode", thiefDuration);
                 break;
         }
     }
