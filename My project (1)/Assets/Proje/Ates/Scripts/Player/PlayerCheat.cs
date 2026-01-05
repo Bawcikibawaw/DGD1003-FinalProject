@@ -6,6 +6,9 @@ public class PlayerCheat : MonoBehaviour
     private bool _isInitialized = false;
     public float shieldDuration = 0.5f;
     private Animator anim;
+    
+    public GameObject wizardEffectPrefab; // Drag your effect prefab (lightning, meteor, etc.) here
+    public float verticalOffset = 2.0f;    // How high above the enemy to spawn the effect
 
 
     void Start()
@@ -40,9 +43,22 @@ public class PlayerCheat : MonoBehaviour
                 GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
                 foreach (GameObject enemy in enemies)
                 {
+                    // 1. Calculate spawn position (Enemy position + Up offset)
+                    Vector3 spawnPos = enemy.transform.position + Vector3.up * verticalOffset;
+
+                    // 2. Instantiate the prefab
+                    if (wizardEffectPrefab != null)
+                    {
+                       GameObject effectInstance = Instantiate(wizardEffectPrefab, spawnPos, Quaternion.identity);
+                       
+                       Destroy(effectInstance, 1f);
+                    }
+
+                    // 3. Destroy the enemy
                     Destroy(enemy);
                 }
                 Debug.Log("Terminator saldırısı: Tüm düşmanlar yok edildi!");
+                Invoke("DeactivateWizardEffect",0.5f);
                 break;
             
             case 1: // Knight
@@ -73,5 +89,10 @@ public class PlayerCheat : MonoBehaviour
         PlayerMovement.Instance.isInvincible = false;
         anim.SetBool("playerSwitch" , false);
         Debug.Log("KALKAN BİTTİ!");
+    }
+
+    void DeactivateWizardEffect()
+    {
+        anim.SetBool("playerSwitch", false);
     }
 }

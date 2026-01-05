@@ -31,4 +31,9 @@ public class PlayerSelectionUI : MonoBehaviour
             SceneManager.LoadScene("GameScene");
         }
     }
+
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
 }

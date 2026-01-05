@@ -6,6 +6,12 @@ public class UIManager : MonoBehaviour
     public Slider healthBar;
 
     public Slider cheathBar;
+
+    void Start()
+    {
+        healthBar.maxValue = PlayerMovement.Instance.maxHealth;
+        healthBar.normalizedValue = 1f;
+    }
     
     void Update()
     {
