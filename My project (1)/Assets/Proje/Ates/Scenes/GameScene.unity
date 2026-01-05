@@ -134730,10 +134730,30 @@ MonoBehaviour:
       count: 5
     rate: 1
   - waveName: Fasters
-    enemies: []
+    enemies:
+    - enemyPrefab: {fileID: 1936696263576190030, guid: 340081df31da64b559dbf239d6fa5919, type: 3}
+      count: 15
     rate: 2
   - waveName: BOSS GELIYOR
-    enemies: []
+    enemies:
+    - enemyPrefab: {fileID: 1936696263576190030, guid: 340081df31da64b559dbf239d6fa5919, type: 3}
+      count: 3
+    - enemyPrefab: {fileID: 1936696263576190030, guid: 804925eb7942b4ed4951a505821b623d, type: 3}
+      count: 12
+    rate: 1
+  - waveName: BOSS GELIYOR
+    enemies:
+    - enemyPrefab: {fileID: 1936696263576190030, guid: 804925eb7942b4ed4951a505821b623d, type: 3}
+      count: 12
+    - enemyPrefab: {fileID: 1936696263576190030, guid: 340081df31da64b559dbf239d6fa5919, type: 3}
+      count: 3
+    rate: 1
+  - waveName: BOSS GELIYOR
+    enemies:
+    - enemyPrefab: {fileID: 1936696263576190030, guid: 804925eb7942b4ed4951a505821b623d, type: 3}
+      count: 15
+    - enemyPrefab: {fileID: 1936696263576190030, guid: 804925eb7942b4ed4951a505821b623d, type: 3}
+      count: 0
     rate: 1
   spawnPoints:
   - {fileID: 924812623}
