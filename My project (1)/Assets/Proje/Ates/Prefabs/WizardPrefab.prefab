@@ -291,6 +291,9 @@ MonoBehaviour:
   wizardEffectDeactivateDelay: 1.2
   knightDamageBoost: 3
   isKnightCheatActive: 0
+  cheatZoomSize: 7
+  zoomSpeed: 5
+  wizardSlowMoScale: 0.4
 --- !u!95 &8509048764852989332
 Animator:
   serializedVersion: 7
