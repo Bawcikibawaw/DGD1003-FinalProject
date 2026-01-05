@@ -102,7 +102,7 @@ public class LevelSystem : MonoBehaviour
     
     public void UpgradeHealth()
     {
-        PlayerMovement.Instance.currentCheat += 30; 
+        PlayerMovement.Instance.currentHealth += 30; 
             Debug.Log("Can Yenilendi!");
         
         CloseMenuAndResume();

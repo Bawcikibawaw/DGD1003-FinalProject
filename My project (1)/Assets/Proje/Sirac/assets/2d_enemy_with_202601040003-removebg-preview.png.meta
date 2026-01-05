@@ -82,7 +82,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -120,7 +120,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -509,7 +509,23 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      2d_enemy_with_202601040003-removebg-preview_0: 7315261853522739760
+      2d_enemy_with_202601040003-removebg-preview_1: 8567923808933399094
+      2d_enemy_with_202601040003-removebg-preview_10: -8272153505325335463
+      2d_enemy_with_202601040003-removebg-preview_11: 3529246676043837036
+      2d_enemy_with_202601040003-removebg-preview_12: 9170017570030806589
+      2d_enemy_with_202601040003-removebg-preview_13: 2270279160178819076
+      2d_enemy_with_202601040003-removebg-preview_14: 413767888389019305
+      2d_enemy_with_202601040003-removebg-preview_15: -1413655587211454286
+      2d_enemy_with_202601040003-removebg-preview_2: -2735891556630137157
+      2d_enemy_with_202601040003-removebg-preview_3: 725977100859758723
+      2d_enemy_with_202601040003-removebg-preview_4: -6652830312300478998
+      2d_enemy_with_202601040003-removebg-preview_5: 9146133174318718745
+      2d_enemy_with_202601040003-removebg-preview_6: -8036409162379657738
+      2d_enemy_with_202601040003-removebg-preview_7: -876304335431336774
+      2d_enemy_with_202601040003-removebg-preview_8: -6348358792962950243
+      2d_enemy_with_202601040003-removebg-preview_9: -3721338282340808054
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -30,8 +30,8 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D hitInfo)
     {
-        // 1. DÜŞMANA ÇARPARSA
         Enemy enemy = hitInfo.GetComponent<Enemy>();
+        RangedEnemy rangedEnemy = hitInfo.GetComponent<RangedEnemy>();
         
         if (enemy != null)
         {
@@ -40,17 +40,17 @@ public class Bullet : MonoBehaviour
             // A. KRİTİK HESAPLAMA
             bool isCritical = Random.Range(0, 100) < critChance;
             int finalDamage = isCritical ? damage * critMultiplier : damage;
-
+        
             // B. HASARI VER (Kritik bilgisiyle beraber)
             enemy.TakeDamage(finalDamage, isCritical);
-
+        
             // C. VURUŞ İŞARETİ (HIT MARKER) GÖSTER [YENİ EKLENEN]
             HitMarker marker = FindObjectOfType<HitMarker>();
             if (marker != null)
             {
                 marker.Show();
             }
-
+        
             // D. GERİ TEPME (KNOCKBACK) UYGULA
             Rigidbody2D enemyRb = hitInfo.GetComponent<Rigidbody2D>();
             if (enemyRb != null)

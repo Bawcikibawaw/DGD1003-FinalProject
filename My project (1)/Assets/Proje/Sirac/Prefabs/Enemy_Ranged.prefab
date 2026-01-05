@@ -102,8 +102,8 @@ GameObject:
   - component: {fileID: 8430578878024113079}
   - component: {fileID: 7557923751178768650}
   - component: {fileID: 7328227382591352671}
-  - component: {fileID: -1457977491719567595}
   - component: {fileID: -5128046423472591831}
+  - component: {fileID: 7908707381225340926}
   m_Layer: 0
   m_Name: Enemy_Ranged
   m_TagString: Enemy
@@ -119,15 +119,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1936696263576190030}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.01, y: -0.01, z: 0}
-  m_LocalScale: {x: -1.8405824, y: -2.130217, z: 0.93430567}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1170312393475968028}
   - {fileID: 8366679979927344177}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &9181233767574626904
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -195,7 +195,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cfb47d27f2374f0aa5440d168abf9f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  type: 3
   moveSpeed: 3
+  stoppingDistance: 7
   playerTarget: {fileID: 0}
 --- !u!50 &7557923751178768650
 Rigidbody2D:
@@ -260,25 +262,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: -0.011494309, y: -0.0031120463}
   m_Radius: 0.22673456
---- !u!114 &-1457977491719567595
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1936696263576190030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6484e2d0021a4edaba915716a394d3b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 3
-  stoppingDistance: 6
-  retreatDistance: 3.5
-  startTimeBetweenShots: 2
-  projectilePrefab: {fileID: 4545054609703506171, guid: 8cfc5358f76d1413c8008144bc07414a, type: 3}
-  firePoint: {fileID: 8366679979927344177}
-  health: 30
 --- !u!95 &-5128046423472591831
 Animator:
   serializedVersion: 7
@@ -301,6 +284,32 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7908707381225340926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1936696263576190030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b78811e0c890442de8c360d6f3af127a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 3
+  projectilePrefab: {fileID: 4545054609703506171, guid: 8cfc5358f76d1413c8008144bc07414a, type: 3}
+  shootPoint: {fileID: 8366679979927344177}
+  fireForce: 12
+  detectionRange: 7
+  attackDamage: 10
+  attackCooldown: 1.5
+  lootPrefab: {fileID: 559567654613804415, guid: 59c25d063d13e4c0fb00f7c8f9539098, type: 3}
+  dropChance: 20
+  xpAmount: 20
+  cheatValueOnDeath: 10
+  healthBar: {fileID: 6410765198800640237}
+  damagePopupPrefab: {fileID: 6932543031152221650, guid: d76a1c08e318d4183a2a57b1381fd432, type: 3}
+  hitSound: {fileID: 8300000, guid: f913b3a9d886e4ef8a12e604a4a83d46, type: 3}
 --- !u!1 &2138002027321136617
 GameObject:
   m_ObjectHideFlags: 0

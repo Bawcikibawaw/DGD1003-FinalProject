@@ -2,22 +2,28 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
+    // 1. Enum to match your Enemy script
+    public enum EnemyType { Runner, Tank, Normal, Ranged }
+
+    [Header("Type Settings")]
+    public EnemyType type;
+
+    [Header("Movement Settings")]
     public float moveSpeed = 3f; 
+    public float stoppingDistance = 5f; // Only Ranged enemies use this
 
-    // Ghost script'i için public bıraktık
+    [Header("Components")]
     public Transform playerTarget; 
-
     private Rigidbody2D rb;
-    private SpriteRenderer sr; // YENİ: Resmi çevirmek için lazım
+    private SpriteRenderer sr; 
     private TimeRewind timeRewind; 
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>(); // SpriteRenderer'ı al
+        sr = GetComponent<SpriteRenderer>(); 
         timeRewind = GetComponent<TimeRewind>(); 
 
-        // 1. DÖNMEYİ FİZİKSEL OLARAK KİLİTLE
         if (rb != null) rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
@@ -29,6 +35,7 @@ public class EnemyAI : MonoBehaviour
 
     void FixedUpdate()
     {
+        // Don't move if rewinding time
         if (timeRewind != null && timeRewind.IsRewinding())
         {
             rb.linearVelocity = Vector2.zero; 
@@ -37,23 +44,23 @@ public class EnemyAI : MonoBehaviour
 
         if (playerTarget != null)
         {
+            float distanceToPlayer = Vector2.Distance(transform.position, playerTarget.position);
             Vector2 direction = (playerTarget.position - transform.position).normalized;
-            rb.linearVelocity = direction * moveSpeed;
 
-            // --- ESKİ HATALI KOD (SİLİNDİ) ---
-            // float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-            // rb.MoveRotation(angle); 
-            // ---------------------------------
+            // 2. The Stop Logic
+            // If it's Ranged and within distance, stop. Otherwise, keep moving.
+            if (type == EnemyType.Ranged && distanceToPlayer <= stoppingDistance)
+            {
+                rb.linearVelocity = Vector2.zero; 
+            }
+            else
+            {
+                rb.linearVelocity = direction * moveSpeed;
+            }
 
-            // --- YENİ DOĞRU KOD (SADECE RESMİ ÇEVİR) ---
-            if (direction.x > 0)
-            {
-                sr.flipX = false; // Sağa bak
-            }
-            else if (direction.x < 0)
-            {
-                sr.flipX = true; // Sola bak (Aynala)
-            }
+            // 3. Flip Sprite based on direction to Player
+            if (direction.x > 0) sr.flipX = false; 
+            else if (direction.x < 0) sr.flipX = true; 
         }
         else
         {
@@ -61,10 +68,9 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // --- ZORLA DÜZeltme (GARANTİ ÇÖZÜM) ---
     void LateUpdate()
     {
-        // Eğer başka bir script veya animasyon döndürmeye çalışırsa engelle
+        // Fix for rotation if any animation tries to rotate the enemy
         transform.rotation = Quaternion.identity;
     }
 }

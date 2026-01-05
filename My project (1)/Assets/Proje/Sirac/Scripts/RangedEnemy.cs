@@ -76,11 +76,11 @@ public class RangedEnemy : MonoBehaviour
     }
 
     // --- KESİN ÇÖZÜM BURASI (LateUpdate) ---
-    void LateUpdate()
-    {
-        // Her şey bittikten sonra açıyı ZORLA SIFIRLA (Dik dur)
-        transform.rotation = Quaternion.identity;
-    }
+    // void LateUpdate()
+    // {
+    //     // Her şey bittikten sonra açıyı ZORLA SIFIRLA (Dik dur)
+    //     transform.rotation = Quaternion.identity;
+    // }
 
     void Shoot()
     {
@@ -91,9 +91,25 @@ public class RangedEnemy : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damage)
-    {
-        health -= damage;
-        if (health <= 0) Destroy(gameObject);
-    }
+    // public void TakeDamage(int damage, bool isCritical)
+    // {
+    //     if (isDead) return;
+    //
+    //     health -= damage;
+    //     if (healthBar != null) healthBar.value = currentHealth;
+    //
+    //     if (damagePopupPrefab != null)
+    //     {
+    //         Vector3 spawnPosition = transform.position + new Vector3(0, 0.5f, 0);
+    //         GameObject popup = Instantiate(damagePopupPrefab, spawnPosition, Quaternion.identity);
+    //         popup.GetComponent<DamagePopup>().Setup(damage, isCritical);
+    //     }
+    //
+    //     
+    //     if (health <= 0) Destroy(gameObject);
+    // }
+
+    // public void TakeDamage(int damage) { TakeDamage(damage, false); }
+    // public void TakeDamage(int damage, float knockback) { TakeDamage(damage, false); }
+    
 }

@@ -1,73 +1,59 @@
 using UnityEngine;
-using UnityEngine.UI; 
+using UnityEngine.UI;
 using System.Collections;
 
 public class Enemy : MonoBehaviour
 {
+    // Define the different enemy behaviors
+    public enum EnemyType { Runner, Tank, Normal, Ranged }
+
+    [Header("Type Settings")]
+    public EnemyType type; // Select this in the Unity Inspector
+
+    [Header("Ranged Settings (Only for Ranged Type)")]
+    public GameObject projectilePrefab; 
+    public Transform shootPoint;        
+    public float fireForce = 12f;
+    public float detectionRange = 7f;   // How far away it starts shooting
+
     [Header("Can Ayarları")]
     private int currentHealth;
 
-    [Header("Saldırı Ayarları (YENİ)")]
-    public int attackDamage = 10;       // Oyuncuya kaç vursun?
-    public float attackCooldown = 1.5f; // Kaç saniyede bir vursun?
-    private float lastAttackTime;       // Son vuruş zamanı
+    [Header("Saldırı Ayarları")]
+    public int attackDamage = 10;
+    public float attackCooldown = 1.5f;
+    private float lastAttackTime;
 
     [Header("Loot & XP")]
-    public GameObject lootPrefab; 
-    [Range(0, 100)] public int dropChance = 20; 
-    public float xpAmount = 20f; 
-    public float cheatValueOnDeath = 10f; 
+    public GameObject lootPrefab;
+    [Range(0, 100)] public int dropChance = 20;
+    public float xpAmount = 20f;
+    public float cheatValueOnDeath = 10f;
 
     [Header("UI & Görsel")]
-    public Slider healthBar; 
+    public Slider healthBar;
     private SpriteRenderer sr;
-    private Color originalColor; 
+    private Color originalColor;
 
     [Header("Efektler")]
-    public GameObject damagePopupPrefab; 
-    public AudioClip hitSound; 
+    public GameObject damagePopupPrefab;
+    public AudioClip hitSound;
 
-    // Bileşenler
+    // Components
     private Animator anim;
     private Rigidbody2D rb;
-    private EnemyMovement movementScript; // Hareketi durdurmak için
-    private bool isDead = false; 
+    private EnemyMovement movementScript;
+    private bool isDead = false;
 
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
-        movementScript = GetComponent<EnemyMovement>(); 
+        movementScript = GetComponent<EnemyMovement>();
 
-        // --- RASTGELE DÜŞMAN TİPİ ---
-        // (Buradaki kodların aynen kalıyor, sadece scale değerlerini büyüttük)
-        int zar = Random.Range(0, 100); 
-
-        if (zar < 30) // KOŞUCU
-        {
-            transform.localScale = new Vector3(2.5f, 2.5f, 1f); 
-            if (movementScript != null) movementScript.moveSpeed = 5f; 
-            currentHealth = 60; 
-            if (sr != null) sr.color = new Color(0.5f, 1f, 0.5f); 
-            xpAmount = 15f; 
-        }
-        else if (zar > 85) // TANK
-        {
-            transform.localScale = new Vector3(4.5f, 4.5f, 1f);
-            if (movementScript != null) movementScript.moveSpeed = 1.5f; 
-            currentHealth = 400; 
-            if (sr != null) sr.color = new Color(1f, 0.5f, 0.5f); 
-            xpAmount = 50f; 
-        }
-        else // NORMAL
-        {
-            transform.localScale = new Vector3(3f, 3f, 1f); 
-            if (movementScript != null) movementScript.moveSpeed = 3f; 
-            currentHealth = 150; 
-            if (sr != null) sr.color = Color.white; 
-            xpAmount = 25f;
-        }
+        // 1. Initialize stats based on the Enum
+        SetupEnemyStats();
 
         if (sr != null) originalColor = sr.color;
 
@@ -83,7 +69,17 @@ public class Enemy : MonoBehaviour
     {
         if (isDead) return;
 
-        // Hareket animasyonu (Speed)
+        // 2. Logic for Ranged Attack (Distance based)
+        if (type == EnemyType.Ranged && PlayerMovement.Instance != null)
+        {
+            float distance = Vector2.Distance(transform.position, PlayerMovement.Instance.transform.position);
+            if (distance <= detectionRange && Time.time > lastAttackTime + attackCooldown)
+            {
+                Attack(PlayerMovement.Instance.gameObject);
+            }
+        }
+
+        // Animation Speed
         if (anim != null && rb != null)
         {
             float speed = rb.linearVelocity.magnitude;
@@ -91,15 +87,72 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    // --- YENİ: ÇARPIŞMA VE SALDIRI MANTIĞI ---
+    // --- ENUM CONFIGURATION ---
+    void SetupEnemyStats()
+    {
+        switch (type)
+        {
+            case EnemyType.Runner:
+                SetupRunner();
+                break;
+            case EnemyType.Tank:
+                SetupTank();
+                break;
+            case EnemyType.Normal:
+                SetupNormal();
+                break;
+            case EnemyType.Ranged:
+                SetupRanged();
+                break;
+        }
+    }
+
+    void SetupRunner()
+    {
+        transform.localScale = new Vector3(2.5f, 2.5f, 1f);
+        if (movementScript != null) movementScript.moveSpeed = 5f;
+        currentHealth = 60;
+        if (sr != null) sr.color = new Color(0.5f, 1f, 0.5f); // Green tint
+        xpAmount = 15f;
+    }
+
+    void SetupTank()
+    {
+        transform.localScale = new Vector3(4.5f, 4.5f, 1f);
+        if (movementScript != null) movementScript.moveSpeed = 1.5f;
+        currentHealth = 400;
+        if (sr != null) sr.color = new Color(1f, 0.5f, 0.5f); // Red tint
+        xpAmount = 50f;
+    }
+
+    void SetupNormal()
+    {
+        transform.localScale = new Vector3(3f, 3f, 1f);
+        if (movementScript != null) movementScript.moveSpeed = 3f;
+        currentHealth = 150;
+        if (sr != null) sr.color = Color.white;
+        xpAmount = 25f;
+    }
+
+    void SetupRanged()
+    {
+        transform.localScale = new Vector3(2.8f, 2.8f, 1f);
+        if (movementScript != null) movementScript.moveSpeed = 2.5f;
+        currentHealth = 90;
+        if (sr != null) sr.color = new Color(0.7f, 0.7f, 1f); // Blue tint
+        xpAmount = 35f;
+    }
+
+    // --- ATTACK LOGIC ---
     void OnCollisionStay2D(Collision2D collision)
     {
         if (isDead) return;
 
-        // Çarptığım şey Oyuncu mu?
+        // Ranged enemies usually don't use collision damage, but you can remove this check if you want both
+        if (type == EnemyType.Ranged) return; 
+
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Saldırı zamanı geldi mi?
             if (Time.time > lastAttackTime + attackCooldown)
             {
                 Attack(collision.gameObject);
@@ -111,31 +164,61 @@ public class Enemy : MonoBehaviour
     {
         lastAttackTime = Time.time;
 
-        // 1. Animasyonu Oynat
+        // Determine attack type based on Enum
+        switch (type)
+        {
+            case EnemyType.Ranged:
+                ExecuteRangedAttack(playerObj);
+                break;
+            default:
+                ExecuteMeleeAttack(playerObj);
+                break;
+        }
+    }
+
+    void ExecuteMeleeAttack(GameObject playerObj)
+    {
         if (anim != null) anim.SetTrigger("Attack");
 
-        // 2. Oyuncuya Hasar Ver (PlayerMovement scriptindeki TakeDamage'i çağır)
         PlayerMovement playerScript = playerObj.GetComponent<PlayerMovement>();
         if (playerScript != null)
         {
             playerScript.TakeDamage(attackDamage);
         }
 
-        // 3. Saldırı sırasında düşmanı kısa süre dondur (Daha iyi hissettirir)
         StartCoroutine(StopMovementBriefly());
+    }
+
+    void ExecuteRangedAttack(GameObject playerObj)
+    {
+        if (anim != null) anim.SetTrigger("Attack");
+
+        if (projectilePrefab != null && shootPoint != null)
+        {
+            // Spawn projectile
+            GameObject projectile = Instantiate(projectilePrefab, shootPoint.position, Quaternion.identity);
+            
+            // Aim at player
+            Vector2 direction = (playerObj.transform.position - shootPoint.position).normalized;
+            
+            // Launch
+            Rigidbody2D projRb = projectile.GetComponent<Rigidbody2D>();
+            if (projRb != null)
+            {
+                projRb.linearVelocity = direction * fireForce;
+            }
+        }
     }
 
     IEnumerator StopMovementBriefly()
     {
-        if (movementScript != null) movementScript.enabled = false; // Hareketi kapat
-        rb.linearVelocity = Vector2.zero; // Anında dur
-        
-        yield return new WaitForSeconds(0.5f); // 0.5 saniye bekle (Animasyon süresi kadar)
-        
-        if (!isDead && movementScript != null) movementScript.enabled = true; // Hareketi aç
+        if (movementScript != null) movementScript.enabled = false;
+        rb.linearVelocity = Vector2.zero;
+        yield return new WaitForSeconds(0.5f);
+        if (!isDead && movementScript != null) movementScript.enabled = true;
     }
-    // ------------------------------------------
 
+    // --- DAMAGE & DEATH ---
     public void TakeDamage(int damage, bool isCritical)
     {
         if (isDead) return;
@@ -158,7 +241,6 @@ public class Enemy : MonoBehaviour
     }
 
     public void TakeDamage(int damage) { TakeDamage(damage, false); }
-    public void TakeDamage(int damage, float knockback) { TakeDamage(damage, false); }
 
     IEnumerator FlashEffect()
     {
@@ -175,7 +257,7 @@ public class Enemy : MonoBehaviour
         if (rb != null) rb.linearVelocity = Vector2.zero;
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
-        if (movementScript != null) movementScript.enabled = false; // Hareketi tamamen kapat
+        if (movementScript != null) movementScript.enabled = false;
 
         if (anim != null) anim.SetTrigger("Die");
 
